@@ -1,0 +1,16 @@
+{
+  "media.videocontrols.picture-in-picture.enable-when-switching-tabs.enabled": false,
+  "browser.theme.native-theme": true,
+  "widget.macos.titlebar-blend-mode.behind-window": true,
+  "browser.tabs.allow_transparent_browser": false,
+  "ui.textSelectAttentionBackground": "#3873c5",
+  "ui.textSelectAttentionForeground": "#ffffff",
+  "ui.textHighlightBackground": "#d9e8ff",
+  "ui.textHighlightForeground": "#1b2b42",
+  "ui.textSelectAttentionBackground.dark": "#90baff",
+  "ui.textSelectAttentionForeground.dark": "#14243c",
+  "ui.textHighlightBackground.dark": "#304c70",
+  "ui.textHighlightForeground.dark": "#f2f6fc",
+  "ui.-moz-autofill-background": "#edf3fc",
+  "ui.-moz-autofill-background.dark": "#283b52"
+}

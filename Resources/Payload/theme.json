@@ -1,0 +1,11 @@
+{
+  "id": "e09b652e-7abc-47aa-94e0-91d5a35f625c",
+  "name": "Zen Companion",
+  "description": "Оформление и улучшения Zen. Управление через приложение Zen Companion.",
+  "author": "Eugene; includes Transparent Zen by sameerasw",
+  "version": "2.3.54",
+  "enabled": true,
+  "homepage": "https://github.com/Zhigalove/zen-companion",
+  "createdAt": "2026-10-23",
+  "updatedAt": "2026-10-23"
+}

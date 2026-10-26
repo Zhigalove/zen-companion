@@ -1,0 +1,798 @@
+@media not -moz-pref("mod.zenliquid.app-disabled") {
+/* Ultimate Liquid Glass 2.3.54. Browser chrome only; no website styles.
+ * CSS interpretation of Apple's material hierarchy, not native AppKit Liquid Glass.
+ */
+@-moz-document url-prefix("chrome://browser/content/browser"), url("chrome://global/content/pictureinpicture/player.xhtml") {
+:root {
+  --lg-transparency: 40%;
+}
+@media -moz-pref("mod.zenliquid.transparency", "0%") { :root { --lg-transparency: 0%; } }
+@media -moz-pref("mod.zenliquid.transparency", "10%") { :root { --lg-transparency: 10%; } }
+@media -moz-pref("mod.zenliquid.transparency", "20%") { :root { --lg-transparency: 20%; } }
+@media -moz-pref("mod.zenliquid.transparency", "30%") { :root { --lg-transparency: 30%; } }
+@media -moz-pref("mod.zenliquid.transparency", "40%") { :root { --lg-transparency: 40%; } }
+@media -moz-pref("mod.zenliquid.transparency", "50%") { :root { --lg-transparency: 50%; } }
+@media -moz-pref("mod.zenliquid.transparency", "60%") { :root { --lg-transparency: 60%; } }
+@media -moz-pref("mod.zenliquid.transparency", "70%") { :root { --lg-transparency: 70%; } }
+@media -moz-pref("mod.zenliquid.transparency", "80%") { :root { --lg-transparency: 80%; } }
+@media -moz-pref("mod.zenliquid.transparency", "90%") { :root { --lg-transparency: 90%; } }
+@media -moz-pref("mod.zenliquid.transparency", "100%") { :root { --lg-transparency: 100%; } }
+:root:has(#theme-Ultimate-Liquid-Glass[mod-zenliquid-transparency="0%"]) { --lg-transparency: 0%; }
+:root:has(#theme-Ultimate-Liquid-Glass[mod-zenliquid-transparency="10%"]) { --lg-transparency: 10%; }
+:root:has(#theme-Ultimate-Liquid-Glass[mod-zenliquid-transparency="20%"]) { --lg-transparency: 20%; }
+:root:has(#theme-Ultimate-Liquid-Glass[mod-zenliquid-transparency="30%"]) { --lg-transparency: 30%; }
+:root:has(#theme-Ultimate-Liquid-Glass[mod-zenliquid-transparency="40%"]) { --lg-transparency: 40%; }
+:root:has(#theme-Ultimate-Liquid-Glass[mod-zenliquid-transparency="50%"]) { --lg-transparency: 50%; }
+:root:has(#theme-Ultimate-Liquid-Glass[mod-zenliquid-transparency="60%"]) { --lg-transparency: 60%; }
+:root:has(#theme-Ultimate-Liquid-Glass[mod-zenliquid-transparency="70%"]) { --lg-transparency: 70%; }
+:root:has(#theme-Ultimate-Liquid-Glass[mod-zenliquid-transparency="80%"]) { --lg-transparency: 80%; }
+:root:has(#theme-Ultimate-Liquid-Glass[mod-zenliquid-transparency="90%"]) { --lg-transparency: 90%; }
+:root:has(#theme-Ultimate-Liquid-Glass[mod-zenliquid-transparency="100%"]) { --lg-transparency: 100%; }
+
+
+/* Appearance follows the operating system, not the workspace/page palette or
+ * Zen's explicit light/dark preference. No webpage document is targeted. */
+:root, #navigator-toolbox, #titlebar, #nav-bar, .zen-browser-generic-background,
+#urlbar, #searchbar, panel, menupopup, #sidebar-box, dialog, .dialogBox, #statuspanel, #statuspanel-label, findbar, zen-library {
+  color-scheme: light !important;
+}
+@media (-moz-system-dark-theme) {
+  :root, #navigator-toolbox, #titlebar, #nav-bar, .zen-browser-generic-background,
+  #urlbar, #searchbar, panel, menupopup, #sidebar-box, dialog, .dialogBox, #statuspanel, #statuspanel-label, findbar, zen-library {
+    color-scheme: dark !important;
+  }
+}
+:root {
+  /* One setting: material opacity. Its palette follows macOS automatically. */
+  --lg-canvas: light-dark(#f3f6fc, #1c1d22);
+  --lg-tint: light-dark(#f3f6fc, #252932);
+  --lg-fill: color-mix(in srgb, var(--lg-tint) calc(100% - var(--lg-transparency)), transparent);
+  --lg-surface: linear-gradient(145deg, #ffffff05, #ffffff00 42%), linear-gradient(var(--lg-fill), var(--lg-fill));
+  --lg-text: light-dark(#171a21, #f5f6fa);
+  --lg-edge: light-dark(#0000000a, #ffffff0a);
+  --lg-shadow: 0 8px 24px #00000014, 0 1px 4px #0000000a;
+  --lg-filter: blur(22px) saturate(110%);
+  --lg-hover: light-dark(#0000000d, #ffffff15);
+  --lg-selected: light-dark(#ffffff70, #ffffff14);
+}
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  :root {
+    --lg-fill: light-dark(#f3f6fc, #24262c);
+    --lg-filter: none;
+    --lg-edge: light-dark(#5c6068, #b9bdc7);
+  }
+}
+}
+
+@-moz-document url-prefix("chrome://browser/content/browser") {
+/* Remove workspace tint at its source, including the previous transition layer.
+ * Do not change the accent color used to identify workspaces or private windows. */
+:root {
+  --zen-main-browser-background: transparent !important;
+  --zen-main-browser-background-old: transparent !important;
+  --zen-main-browser-background-toolbar: transparent !important;
+  --zen-main-browser-background-toolbar-old: transparent !important;
+  --zen-navigator-toolbox-background: transparent !important;
+  --toolbar-color: var(--lg-text) !important;
+  --toolbarbutton-hover-background: var(--lg-hover) !important;
+  --toolbarbutton-active-background: var(--lg-selected) !important;
+  --arrowpanel-background: var(--lg-fill) !important;
+  --arrowpanel-color: var(--lg-text) !important;
+  --arrowpanel-border-color: var(--lg-edge) !important;
+  --arrowpanel-border-radius: 18px !important;
+  --panel-border-radius: 18px !important;
+}
+#zen-browser-background,
+#zen-browser-background::before,
+#zen-browser-background::after,
+#navigator-toolbox .zen-toolbar-background::before,
+#navigator-toolbox .zen-toolbar-background::after {
+  background: transparent !important;
+  background-image: none !important;
+}
+#zen-browser-background > .zen-browser-grain { display: none !important; }
+/* Zen writes workspace gradients directly on these elements, bypassing inherited
+ * root variables. Remove the decoration itself, including its compositor layer. */
+#zen-browser-background {
+  visibility: hidden !important;
+  --zen-main-browser-background: transparent !important;
+  --zen-main-browser-background-old: transparent !important;
+}
+#zen-toolbar-background {
+  --zen-main-browser-background-toolbar: transparent !important;
+  --zen-main-browser-background-toolbar-old: transparent !important;
+}
+:root:not([zen-compact-mode="true"]):not([inDOMFullscreen]) #zen-toolbar-background {
+  visibility: hidden !important;
+}
+/* Firefox can paint its theme behind Zen independently of workspace layers. */
+:root {
+  --toolbox-background-image: none !important;
+  --toolbox-background-color: transparent !important;
+  --toolbox-background-color-inactive: transparent !important;
+  --zen-themed-toolbar-bg-transparent: transparent !important;
+}
+body {
+  background-color: var(--lg-canvas) !important;
+  background-image: none !important;
+}
+
+/* Neutral window canvas replaces the previous desktop-vibrancy experiment. */
+:root:is([macOSNativeFullscreen], [sizemode="fullscreen"], [inDOMFullscreen]) body::after {
+  appearance: none !important;
+  -moz-default-appearance: none !important;
+  background: none !important;
+}
+zen-library {
+  background: var(--lg-canvas) !important;
+  color: var(--lg-text) !important;
+  --toolbar-color: var(--lg-text) !important;
+  --toolbox-textcolor: var(--lg-text) !important;
+  --toolbarbutton-icon-fill: var(--lg-text) !important;
+  --zen-toolbar-element-bg: light-dark(#18203012, #ffffff14) !important;
+  --zen-library-pill-bg: light-dark(#1820300e, #ffffff12) !important;
+  --zen-library-pill-hover-bg: light-dark(#1820301a, #ffffff20) !important;
+  --zen-main-browser-background: var(--lg-canvas) !important;
+  --zen-main-browser-background-old: var(--lg-canvas) !important;
+}
+zen-library :is(#zen-library-panel, #zen-library-content) {
+  background: var(--lg-canvas) !important;
+  color: var(--lg-text) !important;
+}
+zen-library #zen-library-side {
+  background: light-dark(#edf2fa, #24262d) !important;
+}
+zen-library .zen-browser-generic-background {
+  --zen-main-browser-background: var(--lg-canvas) !important;
+  --zen-main-browser-background-old: var(--lg-canvas) !important;
+}
+zen-library .zen-browser-generic-background::before,
+zen-library .zen-browser-generic-background::after {
+  background: var(--lg-canvas) !important;
+}
+zen-library .zen-browser-grain { display: none !important; }
+
+/* Library uses one material in desktop windows, no nested opaque sheets. */
+:root:not([macOSNativeFullscreen]):not([sizemode="fullscreen"]):not([inDOMFullscreen]) zen-library {
+  --lg-fill: color-mix(in srgb, var(--lg-tint) calc(100% - var(--lg-transparency) * .94), transparent);
+  background: var(--lg-fill) !important;
+  backdrop-filter: blur(12px) saturate(110%) contrast(.35) brightness(1.5) !important;
+}
+@media (-moz-system-dark-theme) {
+  :root:not([macOSNativeFullscreen]):not([sizemode="fullscreen"]):not([inDOMFullscreen]) zen-library {
+    backdrop-filter: blur(12px) saturate(110%) contrast(.35) brightness(.7) !important;
+  }
+}
+:root:not([macOSNativeFullscreen]):not([sizemode="fullscreen"]):not([inDOMFullscreen]) zen-library :is(#zen-library-panel, #zen-library-content) {
+  background: transparent !important;
+}
+:root:not([macOSNativeFullscreen]):not([sizemode="fullscreen"]):not([inDOMFullscreen]) zen-library #zen-library-side {
+  background: light-dark(#18203006, #ffffff06) !important;
+  box-shadow: none !important;
+}
+:root:not([macOSNativeFullscreen]):not([sizemode="fullscreen"]):not([inDOMFullscreen]) zen-library .zen-browser-generic-background,
+:root:not([macOSNativeFullscreen]):not([sizemode="fullscreen"]):not([inDOMFullscreen]) zen-library .zen-browser-generic-background::before,
+:root:not([macOSNativeFullscreen]):not([sizemode="fullscreen"]):not([inDOMFullscreen]) zen-library .zen-browser-generic-background::after {
+  background: transparent !important;
+}
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  :root:not([macOSNativeFullscreen]):not([sizemode="fullscreen"]):not([inDOMFullscreen]) zen-library { background: var(--lg-canvas) !important; backdrop-filter: none !important; }
+}
+/* Avoid the clipped exterior shadow at the page/sidebar junction. Keep the
+ * native rounding and clipping; an inset edge stays inside the page bounds. */
+:root:not([inDOMFullscreen]):not([zen-no-padding="true"]) #tabbrowser-tabbox #tabbrowser-tabpanels .browserSidebarContainer:not(.zen-glance-overlay) {
+  box-shadow: inset 0 0 0 1px light-dark(#1b243014, #ffffff18) !important;
+}
+
+/* Lightweight geometry profile for current macOS design. This is an
+ * approximation, not a live NSWindow measurement. Keep native clipping and
+ * derive all four inner corners from outer radius minus the real frame gap. */
+@media (-moz-platform: macos) {
+  :root { --lg-window-radius: var(--zen-border-radius); }
+  @media (-moz-mac-tahoe-theme) {
+    :root { --lg-window-radius: 20px; }
+  }
+  :root:not([inDOMFullscreen]):not([popup-window]):not([zen-no-padding="true"]):is(:not([zen-compact-mode="true"]), :not([macOSNativeFullscreen]):not([sizemode="fullscreen"])) #tabbrowser-tabbox #tabbrowser-tabpanels .browserSidebarContainer:not(.zen-glance-overlay) {
+    border-radius: max(0px, calc(var(--lg-window-radius) - var(--zen-element-separation))) !important;
+    /* Higher-order easing keeps curvature flatter near the straight edges. */
+    corner-shape: superellipse(1.6) !important;
+    /* Group fixed-position page layers before rounding. Otherwise each layer
+     * is antialiased separately and a black document canvas leaks at the edge.
+     * An opaque, static mask preserves geometry without blur or page styles. */
+    mask-image: linear-gradient(#000, #000) !important;
+    clip-path: none !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Web content gets its own neutral backing. Transparent HTML canvas must
+ * never reveal workspace/native-window tint. This is chrome, not website CSS;
+ * opaque website backgrounds continue to paint normally above it. */
+:root:not([zen-has-empty-tab="true"]) #tabbrowser-tabpanels browser[type="content"] {
+  background-color: light-dark(#ffffff, #1c1b22) !important;
+}
+
+/* Keep the native macOS window material behind the empty state.
+ * The old selected-empty-tab condition missed some empty-window transitions. */
+:root { background: var(--lg-canvas) !important; }
+:root:is([macOSNativeFullscreen], [sizemode="fullscreen"], [inDOMFullscreen]) body {
+  background: var(--lg-canvas) !important;
+}
+/* Normal macOS windows retain native vibrancy at the frame and sidebar.
+ * Fullscreen Spaces keep the neutral canvas; web pages keep their own backing. */
+:root:not([macOSNativeFullscreen]):not([sizemode="fullscreen"]):not([inDOMFullscreen]),
+:root:not([macOSNativeFullscreen]):not([sizemode="fullscreen"]):not([inDOMFullscreen]) body {
+  background: transparent !important;
+}
+:root[zen-has-empty-tab="true"] #zen-appcontent-wrapper {
+  background: var(--lg-canvas) !important;
+}
+#zen-main-app-wrapper, #zen-appcontent-wrapper {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+:root:not([zen-compact-mode="true"]):not([inDOMFullscreen]) #navigator-toolbox,
+#navigator-toolbox .zen-toolbar-background,
+#sidebar-box,
+#zen-sidebar-web-panel,
+#zen-toast-container > .zen-toast,
+#urlbar[open] .urlbar-background,
+.zen-glance-sidebar-container {
+  background: var(--lg-surface) !important;
+  color: var(--lg-text) !important;
+  backdrop-filter: var(--lg-filter) !important;
+  border: 0 !important;
+  border-radius: 18px !important;
+  box-shadow: var(--lg-shadow) !important;
+}
+/* Navigation must stay readable even above a black/white page at the maximum
+ * transparency setting. Pair the local material with local text tokens rather
+ * than inheriting the workspace's foreground over arbitrary page pixels. */
+#navigator-toolbox {
+  --lg-text: light-dark(#19212c, #f3f5f9);
+  --lg-nav-tint: light-dark(#f3f6fc, #252932);
+  --lg-filter: blur(12px) saturate(110%) contrast(.35) brightness(1.5);
+  --lg-fill: color-mix(in srgb, var(--lg-nav-tint) calc(100% - var(--lg-transparency) * .94), transparent);
+  --lg-surface: linear-gradient(var(--lg-fill), var(--lg-fill));
+  --lg-selected: color-mix(in srgb, light-dark(#dce4ef, #7487a4) calc(66% - var(--lg-transparency) * .24), transparent);
+  --toolbox-textcolor: var(--lg-text) !important;
+  --toolbox-text-color: var(--lg-text) !important;
+  --toolbar-text-color: var(--lg-text) !important;
+  --toolbar-color: var(--lg-text) !important;
+  --lwt-text-color: var(--lg-text) !important;
+  --toolbarbutton-icon-fill: var(--lg-text) !important;
+  color: var(--lg-text) !important;
+}
+@media (-moz-system-dark-theme) {
+  #navigator-toolbox { --lg-filter: blur(12px) saturate(110%) contrast(.35) brightness(.7); }
+}
+#navigator-toolbox :is(label, .toolbarbutton-text, .tab-group-label) {
+  color: var(--lg-text) !important;
+}
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  #navigator-toolbox { --lg-fill: var(--lg-nav-tint); --lg-filter: none; }
+}
+@media (forced-colors: active) {
+  #navigator-toolbox { --lg-text: CanvasText; --lg-fill: Canvas; --lg-surface: Canvas; --lg-selected: Highlight; --lg-filter: none; }
+  #navigator-toolbox .tabbrowser-tab[selected] .tab-label { color: HighlightText !important; }
+}
+/* One material for navigation. Nested controls never add a second blur,
+ * outline or rounded panel that can merge with its neighbour. */
+#nav-bar, #PersonalToolbar, #zen-media-controls-toolbar,
+#searchbar .searchbar-textbox,
+:root:not([zen-compact-mode="true"]):not([inDOMFullscreen]) #titlebar,
+:root:not([zen-compact-mode="true"]):not([inDOMFullscreen]) #navigator-toolbox .zen-toolbar-background {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+:root:not([zen-compact-mode="true"]):not([inDOMFullscreen]) #navigator-toolbox {
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+/* Pinned navigation and the page frame share one window material.
+ * Floating compact panels keep their own material above the web page. */
+:root:not([zen-compact-mode="true"]):not([inDOMFullscreen]) #navigator-toolbox {
+  background: transparent !important;
+  backdrop-filter: none !important;
+}
+:root:not([macOSNativeFullscreen]):not([sizemode="fullscreen"]):not([inDOMFullscreen]):not([zen-compact-mode="true"]) body {
+  background: var(--lg-surface) !important;
+}
+/* A quiet tonal fill separates the address field without drawing a contour. */
+/* Keep the native translated-language label without its opaque badge. */
+#translations-button-locale {
+  background: transparent !important;
+  color: inherit !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+#urlbar .urlbar-background {
+  border: 0 !important;
+  outline: none !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+#urlbar:not([open]):not([breakout-extend="true"]) .urlbar-background {
+  background: light-dark(#1720300a, #ffffff0e) !important;
+  backdrop-filter: none !important;
+}
+/* Only the expanded search/results surface floats above navigation. */
+#urlbar:is([open], [breakout-extend="true"]) .urlbar-background {
+  background: color-mix(in srgb, light-dark(#f3f6fc, #252932) calc(100% - var(--lg-transparency) * .94), transparent) !important;
+  backdrop-filter: blur(12px) saturate(110%) contrast(.35) brightness(1.5) !important;
+  border: 0 !important;
+  border-radius: 18px !important;
+  box-shadow: var(--lg-shadow) !important;
+}
+@media (-moz-system-dark-theme) {
+  #urlbar:is([open], [breakout-extend="true"]) .urlbar-background {
+    backdrop-filter: blur(12px) saturate(110%) contrast(.35) brightness(.7) !important;
+  }
+}
+/* Text surfaces use a coherent foreground/background pair, never the page's
+ * local brightness. Firefox's selected-result tokens must change with the fill. */
+#urlbar, #searchbar {
+  --urlbarview-separator-color: light-dark(#19212c1a, #f3f5f920) !important;
+  --lg-field-text: light-dark(#19212c, #f3f5f9);
+  --lg-field-secondary: light-dark(#4b5665, #c3cad5);
+  --lg-field-selected: light-dark(#526b9224, #b5c9ed26);
+  --toolbar-field-text-color: var(--lg-field-text) !important;
+  --toolbar-field-text-color-focus: var(--lg-field-text) !important;
+  --urlbarview-background-color-selected: var(--lg-field-selected) !important;
+  --urlbarview-text-color-selected: var(--lg-field-text) !important;
+  --urlbarview-text-color-secondary: var(--lg-field-secondary) !important;
+  --urlbarview-text-color-action: var(--lg-field-secondary) !important;
+  --urlbarview-background-color-hover: light-dark(#526b9214, #b5c9ed18) !important;
+  color: var(--lg-field-text) !important;
+}
+#urlbar-input, #searchbar input {
+  color: var(--lg-field-text) !important;
+  caret-color: currentColor !important;
+}
+#urlbar-input::placeholder, #searchbar input::placeholder {
+  color: var(--lg-field-secondary) !important;
+  opacity: 1 !important;
+}
+/* Native text selection in browser fields, including inline completion. */
+@media not (forced-colors: active) {
+  #urlbar-input::selection, #searchbar input::selection, findbar input::selection {
+    background-color: light-dark(#bfd8ff, #315b8b) !important;
+    color: light-dark(#162b46, #f2f6fc) !important;
+  }
+}
+/* Browser-owned text inputs need their own readable pair, unlike navigation.
+ * Extension documents and website inputs live in separate documents. */
+#searchbar:focus-within .searchbar-textbox,
+panel input:is([type="text"], [type="search"], [type="password"], [type="url"], [type="email"], :not([type])),
+panel textarea {
+  background: light-dark(rgba(243,246,252,.96), rgba(35,39,47,.96)) !important;
+  color: light-dark(#19212c, #f3f5f9) !important;
+  caret-color: currentColor !important;
+}
+panel input::placeholder, panel textarea::placeholder {
+  color: light-dark(#4b5665, #c3cad5) !important;
+  opacity: 1 !important;
+}
+#urlbar .urlbarView-row {
+  color: var(--lg-field-text) !important;
+  background: transparent !important;
+}
+#urlbar .urlbarView-row[selected] > .urlbarView-row-inner {
+  color: var(--lg-field-text) !important;
+  background: var(--lg-field-selected) !important;
+}
+#urlbar .urlbarView-row:not([selected]):hover > .urlbarView-row-inner {
+  background: var(--urlbarview-background-color-hover) !important;
+}
+#urlbar :is(.urlbarView-row-inner, .urlbarView-title, .urlbarView-favicon, .urlbarView-type-icon) {
+  color: var(--lg-field-text) !important;
+}
+#urlbar :is(.urlbarView-action, .urlbarView-url, .urlbarView-title-separator, .urlbarView-tags, .urlbarView-secondary) {
+  color: var(--lg-field-secondary) !important;
+}
+#urlbar .urlbarView-row[selected] :is(.urlbarView-action, .urlbarView-url, .urlbarView-title-separator) {
+  color: var(--lg-field-text) !important;
+}
+/* Separators are generated text; bind their own color to the styled span.
+ * Preserve Firefox's visibility/opacity rules for each result type. */
+#urlbar :is(.urlbarView-title-separator, .urlbarView-subtitle-separator, .urlbarView-bottom-separator)::before {
+  color: inherit !important;
+}
+@media (forced-colors: active) {
+  #urlbar, #searchbar {
+    --lg-field-text: CanvasText;
+    --lg-field-secondary: CanvasText;
+    --lg-field-selected: Highlight;
+    --urlbarview-text-color-selected: HighlightText !important;
+  }
+  #urlbar .urlbarView-row[selected],
+  #urlbar .urlbarView-row[selected] :is(.urlbarView-row-inner, .urlbarView-title, .urlbarView-action, .urlbarView-url, .urlbarView-title-separator) {
+    color: HighlightText !important;
+  }
+}
+#urlbar .urlbarView-row-inner, panel .subviewbutton,
+#navigator-toolbox .toolbarbutton-1 > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) {
+  border-radius: 10px !important;
+}
+#navigator-toolbox .tab-label {
+  color: var(--lg-text) !important;
+  opacity: 1 !important;
+}
+#navigator-toolbox .tabbrowser-tab[selected] .tab-background {
+  /* Match the player material, with a quiet edge rather than a double rim. */
+  background: color-mix(in srgb, light-dark(#f7f9fc, #596575) calc(84% - var(--lg-transparency) * .22), transparent) !important;
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: inset 0 0 0 2px light-dark(#ffffff18, #e8eef812) !important;
+}
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  #navigator-toolbox .tabbrowser-tab[selected] .tab-background {
+    background: light-dark(#ffffff, #414750) !important;
+  }
+}
+@media (forced-colors: active) {
+  #navigator-toolbox .tabbrowser-tab[selected] .tab-background {
+    background: Highlight !important;
+    box-shadow: none !important;
+  }
+}
+#navigator-toolbox .tabbrowser-tab:not([selected]):hover .tab-background {
+  background: var(--lg-hover) !important;
+}
+/* Separate nested materials: no repeated backdrop blur over navigation. */
+#navigator-toolbox :is(#tabs-newtab-button, #vertical-tabs-newtab-button) {
+  --toolbarbutton-active-background: color-mix(in srgb, light-dark(#526b92, #dce6fa) calc(18% - var(--lg-transparency) * .10), transparent) !important;
+}
+#navigator-toolbox :is(#tabs-newtab-button, #vertical-tabs-newtab-button):is(:active, [open], [checked], [in-urlbar]) {
+  background: var(--toolbarbutton-active-background) !important;
+  box-shadow: none !important;
+}
+#zen-media-controls-toolbar .zen-media-card {
+  --zen-sidebar-notification-bg: color-mix(in srgb, light-dark(#f7f9fc, #596575) calc(84% - var(--lg-transparency) * .22), transparent);
+  background: var(--zen-sidebar-notification-bg) !important;
+  color: var(--lg-text) !important;
+  backdrop-filter: none !important;
+  outline: none !important;
+  border: 0 !important;
+  box-shadow: 0 2px 8px #0000000a !important;
+}
+/* Floating navigation can be almost white over a white page. Use a subtle
+ * foreground-derived tint there, rather than another white translucent slab.
+ * Use this material for active tabs in every mode; player uses the same material in every mode. Skip accessibility override modes. */
+@media (not (prefers-reduced-transparency: reduce)) and (not (prefers-contrast: more)) and (not (forced-colors: active)) {
+  #navigator-toolbox {
+    --lg-floating-card: light-dark(
+      color-mix(in srgb, #9fbce8 calc(28% - var(--lg-transparency) * .06), transparent),
+      color-mix(in srgb, #e5efff calc(16% - var(--lg-transparency) * .04), transparent)
+    );
+    --lg-floating-edge: light-dark(#8ba9d018, #e5efff20);
+  }
+  #navigator-toolbox .tabbrowser-tab[selected] .tab-background {
+    background: var(--lg-floating-card) !important;
+    box-shadow: inset 0 0 0 2px var(--lg-floating-edge) !important;
+  }
+  #zen-media-controls-toolbar .zen-media-card {
+    background: var(--lg-floating-card) !important;
+    --zen-sidebar-notification-bg: var(--lg-floating-card);
+    box-shadow: inset 0 0 0 2px var(--lg-floating-edge), 0 2px 6px #00000006 !important;
+  }
+  /* Light mode: softly tinted glass shared by selected tabs and media.
+   * Keep separation tonal, without a white slab or stacked dark shadows. */
+  @media not (-moz-system-dark-theme) {
+    #navigator-toolbox {
+      --lg-floating-card: color-mix(in srgb, #eaf0f9 calc(55% - var(--lg-transparency) * .12), transparent);
+      --lg-floating-edge: #829bc224;
+    }
+    #navigator-toolbox .tabbrowser-tab[selected] .tab-background,
+    #zen-media-controls-toolbar .zen-media-card {
+      box-shadow: inset 0 0 0 2px var(--lg-floating-edge), 0 1px 4px #26344a06 !important;
+    }
+    #navigator-toolbox .tabbrowser-tab[selected] .tab-background {
+      background: var(--lg-floating-card) !important;
+    }
+    #navigator-toolbox .tabbrowser-tab[selected] .tab-label {
+      font-weight: 600 !important;
+    }
+  }
+}
+/* Translucent cards must not reveal controls from the native background stack.
+ * Keep native ordering and hover expansion; collapse only their visibility. */
+#zen-media-controls-toolbar { --zen-media-stack-peek: 0px !important; }
+#zen-media-controls-toolbar:not(:hover):not(:focus-within) .zen-media-card[stacked-behind] {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+/* Keyboard focus keeps the same expanded stack available as pointer hover. */
+#zen-media-controls-toolbar:focus-within .zen-media-card:not([zen-removing], [zen-hiding]) {
+  transform: none !important;
+  opacity: 1 !important;
+}
+#zen-media-controls-toolbar:focus-within .show-on-hover {
+  max-height: 50px !important;
+  padding: 5px !important;
+  margin-bottom: 0 !important;
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+  pointer-events: auto !important;
+}
+#zen-media-controls-toolbar:focus-within .zen-media-notes { display: none !important; }
+/* The native scrolling-title mask used the card's background alpha, which
+ * faded the entire title when the material became transparent. Keep the
+ * overflow fade opaque independently of the material. */
+#zen-media-controls-toolbar .zen-media-info-vbox {
+  mask-image: linear-gradient(to left, transparent, #000 .6em) !important;
+}
+#zen-media-controls-toolbar .zen-media-info-vbox::before { background: none !important; }
+#zen-media-controls-toolbar .zen-media-card :is(.zen-media-title, .zen-media-artist, .zen-media-current-time, .zen-media-duration) {
+  color: var(--lg-text) !important;
+  opacity: 1 !important;
+}
+#zen-media-controls-toolbar .zen-media-card .zen-media-artist {
+  color: light-dark(#465160, #ced5df) !important;
+}
+#zen-media-controls-toolbar .zen-media-card .toolbarbutton-1:not([disabled="true"]) {
+  color: var(--lg-text) !important;
+  fill: currentColor !important;
+}
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  #urlbar:is([open], [breakout-extend="true"]) .urlbar-background {
+    background: light-dark(#f3f6fc, #23272f) !important;
+    backdrop-filter: none !important;
+  }
+  #navigator-toolbox { --lg-selected: light-dark(#dce4ef, #3d495c); }
+  #zen-media-controls-toolbar .zen-media-card { background: light-dark(#eef2f8, #354052) !important; }
+}
+/* No accent outline around the address/search field, including keyboard focus. */
+#urlbar .urlbar-background,
+#urlbar:focus-within .urlbar-background {
+  outline: none !important;
+}
+/* Preserve native menu geometry, roles, disabled states and warning semantics. */
+panel::part(content), menupopup {
+  background: var(--lg-surface) !important;
+  color: var(--lg-text) !important;
+  backdrop-filter: var(--lg-filter) !important;
+  border: 0 !important;
+  border-radius: 18px !important;
+  box-shadow: var(--lg-shadow) !important;
+}
+menupopup :is(menu, menuitem) { border-radius: 7px !important; }
+panel .subviewbutton:not([disabled]):hover { background-color: var(--lg-hover) !important; }
+/* Dialogs contain substantial text: use a denser standard material. */
+dialog, .dialogBox {
+  background: color-mix(in srgb, var(--lg-tint) max(75%, calc(100% - var(--lg-transparency))), transparent) !important;
+  color: var(--lg-text) !important;
+  border-radius: 18px !important;
+}
+/* Find-in-page is one toolbar, not a glass panel inside another panel. */
+findbar {
+  --findbar-border-top-width: 0px;
+  --toolbar-field-text-color: var(--lg-text) !important;
+  --toolbar-field-background-color: light-dark(#1720300a, #ffffff0e) !important;
+  --toolbarbutton-icon-fill: var(--lg-text) !important;
+  background: light-dark(rgba(243,246,252,.94), rgba(35,39,47,.94)) !important;
+  color: var(--lg-text) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+findbar .findbar-container {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  border: 0 !important;
+  outline: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+/* Link destination preview: neutral material, independent of workspace accent.
+ * Preserve native positioning, URL truncation and status visibility logic. */
+#statuspanel > #statuspanel-label {
+  background: light-dark(rgba(243,246,252,.90), rgba(35,39,47,.90)) !important;
+  color: var(--lg-text) !important;
+  backdrop-filter: blur(12px) saturate(110%) !important;
+  border: 0 !important;
+  outline: none !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 8px #00000014 !important;
+  padding: 5px 10px !important;
+  font-weight: 500 !important;
+}
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  #statuspanel > #statuspanel-label { background: light-dark(#f3f6fc, #23272f) !important; backdrop-filter: none !important; }
+}
+@media (forced-colors: active) {
+  #statuspanel > #statuspanel-label { background: Canvas !important; color: CanvasText !important; box-shadow: none !important; }
+}
+/* Hide only the resize indicator; retain hit testing and dragging. */
+#zen-sidebar-splitter { opacity: 0 !important; }
+
+:root[inDOMFullscreen] #navigator-toolbox {
+  --zen-compact-float: var(--zen-element-separation);
+  --zen-compact-hidden-distance: calc(100% - var(--zen-compact-float) - 1px);
+  --zen-compact-hidden-translate: calc(-1 * var(--zen-compact-hidden-distance));
+  visibility: visible !important;
+  display: flex !important;
+  position: fixed !important;
+  top: auto !important;
+  bottom: calc(var(--zen-compact-float) / 2) !important;
+  left: calc(var(--zen-compact-float) / -2) !important;
+  right: auto !important;
+  height: calc(100% - var(--zen-toolbar-height-with-bookmarks)) !important;
+  width: max-content !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 var(--zen-compact-float) !important;
+  box-sizing: border-box !important;
+  z-index: 2147483646 !important;
+  transform: none !important;
+  translate: var(--zen-compact-hidden-translate) !important;
+  transition: translate .15s ease !important;
+}
+:root[inDOMFullscreen][zen-no-padding="true"] #navigator-toolbox {
+  --zen-compact-float: 10px;
+  --zen-compact-top-toolbar-hidden-fix: var(--zen-compact-float);
+}
+:root[inDOMFullscreen][zen-single-toolbar="true"] #navigator-toolbox {
+  top: calc(var(--zen-compact-float) / 2 + var(--zen-sidebar-compact-top-offset, 0px)) !important;
+  bottom: var(--zen-compact-float) !important;
+  height: calc(100% - var(--zen-compact-float)) !important;
+}
+@media -moz-pref("zen.view.compact.hide-toolbar") {
+  :root[inDOMFullscreen]:not([zen-single-toolbar="true"]) #navigator-toolbox {
+    --zen-toolbox-top-align: var(--zen-element-separation);
+    height: calc(100% - var(--zen-compact-top-toolbar-hidden-fix, 0px)) !important;
+  }
+  @media -moz-pref("zen.view.compact.hide-tabbar") {
+    :root[inDOMFullscreen]:not([zen-single-toolbar="true"]) #titlebar {
+      margin-top: var(--zen-element-separation) !important;
+    }
+  }
+}
+@media not -moz-pref("zen.view.compact.hide-toolbar") {
+  :root[inDOMFullscreen]:not([zen-single-toolbar="true"]) #navigator-toolbox {
+    margin-top: var(--zen-toolbar-height-with-bookmarks) !important;
+  }
+}
+:root[inDOMFullscreen] #navigator-toolbox:is(:hover, :focus-within, [has-popup-menu], [movingtab], [zen-user-show]) {
+  translate: none !important;
+}
+:root[inDOMFullscreen] #navigator-toolbox #titlebar {
+  visibility: hidden !important;
+  width: var(--zen-sidebar-width, 230px) !important;
+  height: auto !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  padding: var(--zen-toolbox-padding) !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+}
+:root[inDOMFullscreen] #navigator-toolbox #zen-sidebar-top-buttons {
+  margin: 0 0 calc(var(--zen-toolbox-padding) / 2) 0 !important;
+}
+:root[inDOMFullscreen] #navigator-toolbox:is(:hover, :focus-within, [has-popup-menu], [movingtab], [zen-user-show]) #titlebar,
+:root[inDOMFullscreen] #navigator-toolbox:is(:hover, :focus-within, [has-popup-menu], [movingtab], [zen-user-show]) toolbar {
+  visibility: visible !important;
+}
+
+:root[inDOMFullscreen] #navigator-toolbox .zen-toolbar-background {
+  display: flex !important;
+  position: absolute !important;
+  inset: 0 !important;
+}
+.pointerlockfswarning {
+  /* Video overlays must not force a filtered backdrop/compositing surface. */
+  background: light-dark(rgba(243,246,252,.88), rgba(35,39,47,.82)) !important;
+  color: var(--lg-text) !important;
+  backdrop-filter: none !important;
+  border: 0 !important;
+  border-radius: 14px !important;
+  box-shadow: var(--lg-shadow) !important;
+  font: 13px/1.4 -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+.pointerlockfswarning[onscreen] { translate: 0 24px !important; }
+#fullscreen-exit-button {
+  appearance: none !important;
+  background: var(--lg-hover) !important;
+  color: inherit !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+}
+/* Compact fullscreen toast: one row, short visual action, original accessible label. */
+#fullscreen-warning {
+  width: max-content !important;
+  max-width: calc(100vw - 40px) !important;
+  padding: 7px 10px !important;
+  gap: 10px !important;
+  border-radius: 12px !important;
+  font-size: 12.5px !important;
+  line-height: 1.35 !important;
+}
+#fullscreen-warning > :is(.pointerlockfswarning-domain-text, .pointerlockfswarning-generic-text) {
+  flex: 1 1 auto !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+}
+#fullscreen-exit-button {
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+  min-height: 26px !important;
+  padding: 4px 9px !important;
+  font-size: 0 !important;
+}
+#fullscreen-exit-button::after {
+  content: "\0412\044b\0439\0442\0438\0020\00b7\0020 Esc";
+  font: 500 12px/1.35 -apple-system, BlinkMacSystemFont, sans-serif;
+}
+@media (max-width: 720px) {
+  #fullscreen-warning > :is(.pointerlockfswarning-domain-text, .pointerlockfswarning-generic-text) {
+    white-space: normal !important;
+    text-wrap: pretty !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #navigator-toolbox { transition: none !important; }
+}
+@media (forced-colors: active) {
+  :root { --lg-surface: Canvas; --lg-text: CanvasText; --lg-edge: ButtonText; --lg-filter: none; --lg-selected: Highlight; }
+  #navigator-toolbox .tabbrowser-tab[selected] .tab-label { color: HighlightText !important; }
+}
+}
+
+/* PiP is a browser-owned chrome document, not part of the website. */
+@-moz-document url("chrome://global/content/pictureinpicture/player.xhtml") {
+/* Match navigation's readable translucent material without covering the video. */
+:root {
+  color-scheme: light dark;
+  --lg-fill: color-mix(in srgb, var(--lg-tint) calc(100% - var(--lg-transparency) * .94), transparent);
+  --lg-filter: blur(12px) saturate(110%) contrast(.35) brightness(1.5);
+}
+@media (-moz-system-dark-theme) {
+  :root { --lg-filter: blur(12px) saturate(110%) contrast(.35) brightness(.7); }
+}
+#controls .panel .box {
+  background: var(--lg-surface) !important;
+  color: var(--lg-text) !important;
+  backdrop-filter: var(--lg-filter) !important;
+  border: 0 !important;
+  border-radius: 16px !important;
+  box-shadow: var(--lg-shadow) !important;
+}
+/* Keep native SVG backgrounds and their positioning. A background shorthand
+ * here erases the close/minimize/return icons along with their native fill. */
+#controls > .control-button {
+  background-color: var(--lg-fill) !important;
+  color: var(--lg-text) !important;
+  fill: currentColor !important;
+  backdrop-filter: var(--lg-filter) !important;
+  border: 0 !important;
+  box-shadow: var(--lg-shadow) !important;
+}
+#controls .control-button { color: var(--lg-text) !important; fill: currentColor !important; }
+#controls button { border-radius: 50% !important; }
+/* No floating player slab: only native controls and their bottom fade remain. */
+#controls #controls-bottom {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+#controls #controls-bottom .control-button {
+  color: #f5f6fa !important;
+  fill: currentColor !important;
+  filter: drop-shadow(0 1px 2px #0009);
+}
+#controls #timestamp {
+  color: #f5f6fa !important;
+  text-shadow: 0 1px 2px #0009;
+}
+}
+
+}

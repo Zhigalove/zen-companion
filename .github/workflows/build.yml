@@ -1,0 +1,31 @@
+name: Build and test
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  macos:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build for the runner architecture
+        run: ZEN_COMPANION_ARCH="$(uname -m)" ./build.sh
+      - name: Isolated installer tests
+        run: python3 Tests/backend_test.py
+      - name: Update signature tests
+        run: |
+          xcrun swiftc -swift-version 5 Sources/Backend.swift Sources/Updates.swift Tests/TrustTests.swift -o build/trust-tests -framework AppKit -framework CryptoKit
+          build/trust-tests
+      - name: Build Apple Silicon distribution
+        run: ./build.sh
+      - name: Verify bundle integrity
+        run: codesign --verify --deep --strict 'build/Zen Companion.app'
+      - name: Archive
+        run: ditto -c -k --sequesterRsrc --keepParent 'build/Zen Companion.app' build/Zen-Companion-macOS-arm64.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Zen-Companion-macOS-arm64
+          path: build/Zen-Companion-macOS-arm64.zip

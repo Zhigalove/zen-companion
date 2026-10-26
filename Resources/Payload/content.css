@@ -1,0 +1,95 @@
+@media not -moz-pref("mod.zenliquid.app-disabled") {
+
+/* Native PiP launcher; websites and their own player buttons are untouched. */
+@media not -moz-pref("mod.zenliquid.native-pip-launcher") {
+  .videocontrols .pip-wrapper {
+    --pip-border-radius-toggle: 12px !important;
+    color: #f5f6fa !important;
+    /* Material belongs to the child, never to the native button wrapper.
+     * Hover/focus must not add a second opaque button surface behind it. */
+    appearance: none !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+  /* The companion keeps the native PiP button available in fullscreen.
+   * Its native click handling remains intact; player UI controls visibility. */
+  .videocontrols:is([inDOMFullscreen], [data-ultimate-fullscreen-video]) .controlsOverlay > #pictureInPictureToggle:not([policy="hidden"]) {
+    display: block !important;
+    transition: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    top: calc(70% - 20px) !important;
+    right: 18px !important;
+    left: auto !important;
+  }
+  .videocontrols:is([inDOMFullscreen], [data-ultimate-fullscreen-video]) #pictureInPictureToggle[position="left"] {
+    left: 18px !important;
+    right: auto !important;
+  }
+  .videocontrols:is([inDOMFullscreen], [data-ultimate-fullscreen-video]) #pictureInPictureToggle > .pip-expanded {
+    display: none !important;
+  }
+  .videocontrols:is([inDOMFullscreen], [data-ultimate-fullscreen-video]) #pictureInPictureToggle > .pip-small {
+    display: block !important;
+    transition: none !important;
+    opacity: 1 !important;
+    scale: 1 !important;
+  }
+  .videocontrols:is([inDOMFullscreen], [data-ultimate-fullscreen-video]) #pictureInPictureToggle > .pip-icon {
+    display: block !important;
+    transition: none !important;
+    position: absolute !important;
+    top: 8px !important;
+    left: 8px !important;
+  }
+  .videocontrols[data-ultimate-player-ui="hidden"] .controlsOverlay > #pictureInPictureToggle:not([policy="hidden"]) {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transition: none !important;
+  }
+  /* Native 0.8 -> 1 wrapper opacity adds a third visual step on hover.
+   * Keep the shown toggle at full icon opacity; its child owns translucency.
+   * Exclude hide-toggle mode so the native hidden-state rule still applies. */
+  .videocontrols .controlsOverlay:not([hidetoggle="true"]).hovering > .pip-wrapper,
+  .videocontrols .pip-wrapper:is(.hovering, :focus-visible) {
+    opacity: 1 !important;
+  }
+  .videocontrols .pip-wrapper > :is(.pip-small, .pip-expanded) {
+    background-color: rgba(28,32,39,.24) !important;
+    backdrop-filter: none !important;
+    border: 0 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 7px #00000024 !important;
+  }
+  .videocontrols .pip-wrapper:is(.hovering, :hover, :active, :focus-visible) > :is(.pip-small, .pip-expanded) {
+    background-color: rgba(28,32,39,.32) !important;
+  }
+  /* First-use explanation appears after a delay in the classic toggle.
+   * Its native 65% black fill must not introduce another dark hover state. */
+  .videocontrols .pip-wrapper .pip-explainer {
+    background: rgba(28,32,39,.32) !important;
+    color: #f5f6fa !important;
+    backdrop-filter: none !important;
+    border: 0 !important;
+    border-radius: 0 0 12px 12px !important;
+    box-shadow: 0 2px 7px #00000024 !important;
+  }
+  .videocontrols .pip-wrapper .pip-icon { filter: drop-shadow(0 1px 2px #0008); }
+  @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+    .videocontrols .pip-wrapper > :is(.pip-small, .pip-expanded),
+    .videocontrols .pip-wrapper .pip-explainer {
+      background-color: #30343e !important;
+      backdrop-filter: none !important;
+    }
+  }
+}
+
+}
