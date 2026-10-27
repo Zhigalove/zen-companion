@@ -29,7 +29,7 @@ for(const [,factor] of fills){
 }
 console.log('PASS: 100 -> 40 -> 0 -> 70 without a Zen Mods holder; material retains fill');
 
-const overlaySelector=':root:is([zen-compact-mode="true"], [macOSNativeFullscreen], [sizemode="fullscreen"], [inDOMFullscreen]):not([customizing]) #navigator-toolbox';
+const overlaySelector=':root:is([zen-compact-mode="true"], [inDOMFullscreen]):not([customizing]) #navigator-toolbox';
 const frame=css.slice(css.lastIndexOf(overlaySelector+' {'));
 const gutter=frame.slice(0,frame.indexOf('}'));
 assert.ok(gutter.includes('background: transparent !important;'));
@@ -46,3 +46,6 @@ const floatingFill=css.match(/var\(--lg-nav-tint\) calc\(100% - var\(--lg-transp
 assert.ok(floatingFill,'Floating navigation must remain readable without remote blur');
 for(const transparency of [0,40,100])assert.ok(100-transparency*Number(floatingFill[1])>=92);
 console.log('PASS: floating sidebar material excludes slide-out gutters and includes padding in its saved width');
+
+assert.ok(!css.includes(':root:is([zen-compact-mode="true"], [macOSNativeFullscreen], [sizemode="fullscreen"], [inDOMFullscreen])'));
+console.log('PASS: native fullscreen alone cannot enable the floating sidebar material');
