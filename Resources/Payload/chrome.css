@@ -46,7 +46,7 @@
   /* One setting: material opacity. Its palette follows macOS automatically. */
   --lg-canvas: light-dark(#f3f6fc, #1c1d22);
   --lg-tint: light-dark(#f3f6fc, #252932);
-  --lg-fill: color-mix(in srgb, var(--lg-tint) calc(100% - var(--lg-transparency)), transparent);
+  --lg-fill: color-mix(in srgb, var(--lg-tint) max(25%, calc(100% - var(--lg-transparency))), transparent);
   --lg-surface: linear-gradient(145deg, #ffffff05, #ffffff00 42%), linear-gradient(var(--lg-fill), var(--lg-fill));
   --lg-text: light-dark(#171a21, #f5f6fa);
   --lg-edge: light-dark(#0000000a, #ffffff0a);
@@ -154,7 +154,7 @@ zen-library .zen-browser-grain { display: none !important; }
 
 /* Library uses one material in desktop windows, no nested opaque sheets. */
 :root:not([macOSNativeFullscreen]):not([sizemode="fullscreen"]):not([inDOMFullscreen]) zen-library {
-  --lg-fill: color-mix(in srgb, var(--lg-tint) calc(100% - var(--lg-transparency) * .94), transparent);
+  --lg-fill: color-mix(in srgb, var(--lg-tint) max(25%, calc(100% - var(--lg-transparency) * .94)), transparent);
   background: var(--lg-fill) !important;
   backdrop-filter: blur(12px) saturate(110%) contrast(.35) brightness(1.5) !important;
 }
@@ -252,7 +252,7 @@ zen-library .zen-browser-grain { display: none !important; }
   --lg-text: light-dark(#19212c, #f3f5f9);
   --lg-nav-tint: light-dark(#f3f6fc, #252932);
   --lg-filter: blur(12px) saturate(110%) contrast(.35) brightness(1.5);
-  --lg-fill: color-mix(in srgb, var(--lg-nav-tint) calc(100% - var(--lg-transparency) * .94), transparent);
+  --lg-fill: color-mix(in srgb, var(--lg-nav-tint) max(25%, calc(100% - var(--lg-transparency) * .94)), transparent);
   --lg-surface: linear-gradient(var(--lg-fill), var(--lg-fill));
   --lg-selected: color-mix(in srgb, light-dark(#dce4ef, #7487a4) calc(66% - var(--lg-transparency) * .24), transparent);
   --toolbox-textcolor: var(--lg-text) !important;
@@ -322,7 +322,7 @@ zen-library .zen-browser-grain { display: none !important; }
 }
 /* Only the expanded search/results surface floats above navigation. */
 #urlbar:is([open], [breakout-extend="true"]) .urlbar-background {
-  background: color-mix(in srgb, light-dark(#f3f6fc, #252932) calc(100% - var(--lg-transparency) * .94), transparent) !important;
+  background: color-mix(in srgb, light-dark(#f3f6fc, #252932) max(25%, calc(100% - var(--lg-transparency) * .94)), transparent) !important;
   backdrop-filter: blur(12px) saturate(110%) contrast(.35) brightness(1.5) !important;
   border: 0 !important;
   border-radius: 18px !important;
@@ -750,7 +750,7 @@ findbar .findbar-container {
 /* Match navigation's readable translucent material without covering the video. */
 :root {
   color-scheme: light dark;
-  --lg-fill: color-mix(in srgb, var(--lg-tint) calc(100% - var(--lg-transparency) * .94), transparent);
+  --lg-fill: color-mix(in srgb, var(--lg-tint) max(25%, calc(100% - var(--lg-transparency) * .94)), transparent);
   --lg-filter: blur(12px) saturate(110%) contrast(.35) brightness(1.5);
 }
 @media (-moz-system-dark-theme) {

@@ -1,6 +1,6 @@
 // User-scoped settings bridge. No network, page data or executable commands.
 let timer,stamp=-1,working=false,onApproved,started=false;
-const bridgeVersion = '0.1.0';
+const bridgeVersion = '0.1.1';
 const path=Services.dirsvc.get('ProfD',Ci.nsIFile).path+'/ultimate-glass-settings.json';
 const uiPreferences={"ui.textSelectAttentionBackground": "#3873c5", "ui.textSelectAttentionForeground": "#ffffff", "ui.textHighlightBackground": "#d9e8ff", "ui.textHighlightForeground": "#1b2b42", "ui.textSelectAttentionBackground.dark": "#90baff", "ui.textSelectAttentionForeground.dark": "#14243c", "ui.textHighlightBackground.dark": "#304c70", "ui.textHighlightForeground.dark": "#f2f6fc", "ui.-moz-autofill-background": "#edf3fc", "ui.-moz-autofill-background.dark": "#283b52"};
 function apply(enabled,transparency){
@@ -9,6 +9,7 @@ function apply(enabled,transparency){
  Services.prefs.setBoolPref('mod.zenliquid.video-companion.enabled',enabled);
  Services.prefs.setStringPref('mod.zenliquid.transparency',transparency+'%');
  for(const w of Services.wm.getEnumerator('navigator:browser')){
+  w.document.documentElement.style.setProperty('--lg-transparency',transparency+'%');
   const holder=w.document.getElementById('theme-Ultimate-Liquid-Glass');
   holder?.setAttribute('mod-zenliquid-transparency',transparency+'%');
  }
