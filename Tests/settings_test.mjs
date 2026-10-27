@@ -58,7 +58,9 @@ for(const appearance of ['universal','glass',undefined,'invalid']){
 console.log('PASS: appearance switches live and legacy settings retain glass');
 
 const universal=css.slice(css.indexOf('/* Optional neutral material.'));
-assert.ok(universal.includes('text-shadow: 0 1px 2px #000000e0'));
+assert.ok(universal.includes('text-shadow: none !important;'));
+assert.ok(!universal.includes('drop-shadow('));
+assert.ok(universal.includes(':root zen-library #zen-library-side,'));
 assert.ok(!universal.includes('brightness('));
 assert.ok(!universal.includes('--lg-tint: #24262b'));
 assert.ok(!universal.includes('light-dark('));

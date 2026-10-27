@@ -862,7 +862,7 @@ findbar .findbar-container {
     --toolbarbutton-active-background: var(--lg-floating-card);
   }
   /* Contrast is local to monochrome foregrounds, never to website favicons.
-   * A local dark halo preserves white glyphs without tinting the whole panel. */
+   * Keep glyphs clean: no dark halo or simulated outline. */
   #navigator-toolbox :is(label, .tab-label, .toolbarbutton-text, .tab-group-label),
   #navigator-toolbox .toolbarbutton-icon,
   #urlbar-input,
@@ -870,12 +870,28 @@ findbar .findbar-container {
   #zen-media-controls-toolbar :is(label, .zen-media-title, .zen-media-artist, button) {
     color: #ffffff !important;
     fill: #ffffff !important;
-    text-shadow: 0 1px 2px #000000e0, 0 0 1px #000000e0 !important;
+    text-shadow: none !important;
   }
   #navigator-toolbox .toolbarbutton-icon,
   #zen-media-controls-toolbar button {
-    filter: drop-shadow(0 1px 1px #000000b0) !important;
+    filter: none !important;
   }
   #urlbar-input::placeholder { color: #ffffff !important; opacity: .75 !important; }
   #navigator-toolbox #titlebar { isolation: auto !important; }
+  /* One library material in desktop windows and fullscreen Spaces alike. */
+  :root zen-library,
+  :root:not([macOSNativeFullscreen]):not([sizemode="fullscreen"]):not([inDOMFullscreen]) zen-library {
+    background: var(--lg-surface) !important;
+    backdrop-filter: var(--lg-filter) !important;
+  }
+  :root zen-library :is(#zen-library-panel, #zen-library-content),
+  :root zen-library #zen-library-side,
+  :root:not([macOSNativeFullscreen]):not([sizemode="fullscreen"]):not([inDOMFullscreen]) zen-library #zen-library-side,
+  :root zen-library .zen-browser-generic-background,
+  :root zen-library .zen-browser-generic-background::before,
+  :root zen-library .zen-browser-generic-background::after {
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
 }
