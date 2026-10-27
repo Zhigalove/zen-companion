@@ -46,7 +46,7 @@
   /* One setting: material opacity. Its palette follows macOS automatically. */
   --lg-canvas: light-dark(#f3f6fc, #1c1d22);
   --lg-tint: light-dark(#f3f6fc, #252932);
-  --lg-fill: color-mix(in srgb, var(--lg-tint) max(10%, calc(100% - var(--lg-transparency))), transparent);
+  --lg-fill: color-mix(in srgb, var(--lg-tint) max(4%, calc(100% - var(--lg-transparency) * 1.285714)), transparent);
   --lg-surface: linear-gradient(145deg, #ffffff05, #ffffff00 42%), linear-gradient(var(--lg-fill), var(--lg-fill));
   --lg-text: light-dark(#171a21, #f5f6fa);
   --lg-edge: light-dark(#0000000a, #ffffff0a);
@@ -154,13 +154,13 @@ zen-library .zen-browser-grain { display: none !important; }
 
 /* Library uses one material in desktop windows, no nested opaque sheets. */
 :root:not([macOSNativeFullscreen]):not([sizemode="fullscreen"]):not([inDOMFullscreen]) zen-library {
-  --lg-fill: color-mix(in srgb, var(--lg-tint) max(10%, calc(100% - var(--lg-transparency) * .94)), transparent);
+  --lg-fill: color-mix(in srgb, var(--lg-tint) max(4%, calc(100% - var(--lg-transparency) * 1.285714)), transparent);
   background: var(--lg-fill) !important;
-  backdrop-filter: blur(14px) saturate(140%) contrast(.6) brightness(calc(200% - max(0%, calc(var(--lg-transparency) - 70%)) * .666667)) !important;
+  backdrop-filter: blur(9px) saturate(130%) contrast(.6) brightness(calc(226.6667% - var(--lg-transparency) * .666667)) !important;
 }
 @media (-moz-system-dark-theme) {
   :root:not([macOSNativeFullscreen]):not([sizemode="fullscreen"]):not([inDOMFullscreen]) zen-library {
-    backdrop-filter: blur(14px) saturate(140%) contrast(.75) brightness(calc(50% + max(0%, calc(var(--lg-transparency) - 70%)) * .666667)) !important;
+    backdrop-filter: blur(9px) saturate(130%) contrast(.75) brightness(calc(23.3333% + var(--lg-transparency) * .666667)) !important;
   }
 }
 :root:not([macOSNativeFullscreen]):not([sizemode="fullscreen"]):not([inDOMFullscreen]) zen-library :is(#zen-library-panel, #zen-library-content) {
@@ -251,8 +251,8 @@ zen-library .zen-browser-grain { display: none !important; }
 #navigator-toolbox {
   --lg-text: light-dark(#19212c, #f3f5f9);
   --lg-nav-tint: light-dark(#f3f6fc, #252932);
-  --lg-filter: blur(14px) saturate(140%) contrast(.6) brightness(calc(200% - max(0%, calc(var(--lg-transparency) - 70%)) * .666667));
-  --lg-fill: color-mix(in srgb, var(--lg-nav-tint) max(10%, calc(100% - var(--lg-transparency) * .94)), transparent);
+  --lg-filter: blur(9px) saturate(130%) contrast(.6) brightness(calc(226.6667% - var(--lg-transparency) * .666667));
+  --lg-fill: color-mix(in srgb, var(--lg-nav-tint) max(4%, calc(100% - var(--lg-transparency) * 1.285714)), transparent);
   --lg-surface: linear-gradient(var(--lg-fill), var(--lg-fill));
   --lg-selected: color-mix(in srgb, light-dark(#dce4ef, #7487a4) calc(66% - var(--lg-transparency) * .24), transparent);
   --toolbox-textcolor: var(--lg-text) !important;
@@ -264,7 +264,7 @@ zen-library .zen-browser-grain { display: none !important; }
   color: var(--lg-text) !important;
 }
 @media (-moz-system-dark-theme) {
-  #navigator-toolbox { --lg-filter: blur(14px) saturate(140%) contrast(.75) brightness(calc(50% + max(0%, calc(var(--lg-transparency) - 70%)) * .666667)); }
+  #navigator-toolbox { --lg-filter: blur(9px) saturate(130%) contrast(.75) brightness(calc(23.3333% + var(--lg-transparency) * .666667)); }
 }
 #navigator-toolbox :is(label, .toolbarbutton-text, .tab-group-label) {
   color: var(--lg-text) !important;
@@ -322,15 +322,15 @@ zen-library .zen-browser-grain { display: none !important; }
 }
 /* Only the expanded search/results surface floats above navigation. */
 #urlbar:is([open], [breakout-extend="true"]) .urlbar-background {
-  background: color-mix(in srgb, light-dark(#f3f6fc, #252932) max(10%, calc(100% - var(--lg-transparency) * .94)), transparent) !important;
-  backdrop-filter: blur(14px) saturate(140%) contrast(.6) brightness(calc(200% - max(0%, calc(var(--lg-transparency) - 70%)) * .666667)) !important;
+  background: color-mix(in srgb, light-dark(#f3f6fc, #252932) max(4%, calc(100% - var(--lg-transparency) * 1.285714)), transparent) !important;
+  backdrop-filter: blur(9px) saturate(130%) contrast(.6) brightness(calc(226.6667% - var(--lg-transparency) * .666667)) !important;
   border: 0 !important;
   border-radius: 18px !important;
   box-shadow: var(--lg-shadow) !important;
 }
 @media (-moz-system-dark-theme) {
   #urlbar:is([open], [breakout-extend="true"]) .urlbar-background {
-    backdrop-filter: blur(14px) saturate(140%) contrast(.75) brightness(calc(50% + max(0%, calc(var(--lg-transparency) - 70%)) * .666667)) !important;
+    backdrop-filter: blur(9px) saturate(130%) contrast(.75) brightness(calc(23.3333% + var(--lg-transparency) * .666667)) !important;
   }
 }
 /* Text surfaces use a coherent foreground/background pair, never the page's
@@ -777,11 +777,11 @@ findbar .findbar-container {
 /* Match navigation's readable translucent material without covering the video. */
 :root {
   color-scheme: light dark;
-  --lg-fill: color-mix(in srgb, var(--lg-tint) max(10%, calc(100% - var(--lg-transparency) * .94)), transparent);
-  --lg-filter: blur(14px) saturate(140%) contrast(.6) brightness(calc(200% - max(0%, calc(var(--lg-transparency) - 70%)) * .666667));
+  --lg-fill: color-mix(in srgb, var(--lg-tint) max(4%, calc(100% - var(--lg-transparency) * 1.285714)), transparent);
+  --lg-filter: blur(9px) saturate(130%) contrast(.6) brightness(calc(226.6667% - var(--lg-transparency) * .666667));
 }
 @media (-moz-system-dark-theme) {
-  :root { --lg-filter: blur(14px) saturate(140%) contrast(.75) brightness(calc(50% + max(0%, calc(var(--lg-transparency) - 70%)) * .666667)); }
+  :root { --lg-filter: blur(9px) saturate(130%) contrast(.75) brightness(calc(23.3333% + var(--lg-transparency) * .666667)); }
 }
 #controls .panel .box {
   background: var(--lg-surface) !important;
