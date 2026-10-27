@@ -23,6 +23,7 @@ struct Preferences: Codable {
   var schema = 1
   var enabled = true
   var transparency = 40
+  var appearance: String? = nil
   var revision = UUID().uuidString
   var testedZen: [TestedZen] = []
 }
@@ -153,6 +154,7 @@ final class Backend {
     try validateProfile()
     var s = value
     s.transparency = Int((Double(s.transparency) / 10).rounded()) * 10
+    s.appearance = s.appearance == "universal" ? "universal" : "glass"
     s.revision = UUID().uuidString
     s.testedZen = try compatibility.testedZen
     try writeJSON(s, settingsURL)

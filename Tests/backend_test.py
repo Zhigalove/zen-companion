@@ -21,6 +21,12 @@ def run(*args,ok=True):
  if ok:assert r.returncode==0,(args,r.stderr,r.stdout)
  else:assert r.returncode!=0,(args,r.stdout)
  return r
+# A legacy settings file has no appearance field; preserving the slider is required.
+run('--set','70','--appearance','universal')
+assert json.loads((profile/'ultimate-glass-settings.json').read_text())['appearance']=='universal'
+run('--set','70','--appearance','glass')
+assert json.loads((profile/'ultimate-glass-settings.json').read_text())['appearance']=='glass'
+(profile/'ultimate-glass-settings.json').unlink()
 before={str(p.relative_to(profile)):p.read_bytes() for p in profile.rglob('*') if p.is_file()}
 run('--install');settings=json.loads((profile/'ultimate-glass-settings.json').read_text());assert settings['transparency']==70
 assert json.loads((profile/'chrome/zen-themes/e09b652e-7abc-47aa-94e0-91d5a35f625c/preferences.json').read_text())==[]

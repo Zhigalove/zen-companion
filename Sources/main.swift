@@ -35,6 +35,7 @@ if args.contains(
       }
       var s = backend.preferences()
       s.transparency = n
+      if let mode = argument("--appearance") { s.appearance = mode }
       if let on = argument("--enabled") { s.enabled = on == "true" }
       try backend.savePreferences(s)
     }

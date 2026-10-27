@@ -823,3 +823,42 @@ findbar .findbar-container {
 }
 
 }
+
+/* Optional neutral material. Chrome only: no website selectors or content sheets.
+ * Bound backdrop luminance for stable foreground contrast across page palettes. */
+@media -moz-pref("mod.zenliquid.appearance", "universal") and (not -moz-pref("mod.zenliquid.app-disabled")) and (not (prefers-reduced-transparency: reduce)) and (not (prefers-contrast: more)) and (not (forced-colors: active)) {
+  :root, #navigator-toolbox, zen-library {
+    --lg-canvas: light-dark(#f2f3f5, #24262b);
+    --lg-tint: light-dark(#f2f3f5, #24262b);
+    --lg-nav-tint: var(--lg-tint);
+    --lg-fill: color-mix(in srgb, var(--lg-tint) max(12%, calc(100% - var(--lg-transparency) * .88)), transparent);
+    --lg-surface: linear-gradient(var(--lg-fill), var(--lg-fill));
+    --lg-text: light-dark(#20242b, #f4f5f7);
+    --lg-filter: blur(18px) saturate(65%) contrast(.4) brightness(1.8);
+    --lg-floating-card: light-dark(#ffffff48, #e5e9f528);
+    --lg-floating-edge: light-dark(#4b556323, #e5e9f52b);
+    --lg-selected: var(--lg-floating-card);
+    --lg-shadow: 0 6px 22px #00000012;
+    --lg-edge: light-dark(#323b4814, #ffffff19);
+  }
+  @media (-moz-system-dark-theme) {
+    :root, #navigator-toolbox, zen-library {
+      --lg-filter: blur(18px) saturate(65%) contrast(.4) brightness(.65);
+    }
+  }
+  #urlbar:is([open], [breakout-extend="true"]) .urlbar-background,
+  :root:not([macOSNativeFullscreen]):not([sizemode="fullscreen"]):not([inDOMFullscreen]) zen-library {
+    background: var(--lg-surface) !important;
+    backdrop-filter: var(--lg-filter) !important;
+  }
+  #navigator-toolbox .tabbrowser-tab[selected] .tab-background,
+  #zen-media-controls-toolbar .zen-media-card {
+    background: var(--lg-floating-card) !important;
+    box-shadow: inset 0 0 0 2px var(--lg-floating-edge), 0 2px 8px #00000008 !important;
+  }
+  #navigator-toolbox #tabs-newtab-button,
+  #navigator-toolbox #vertical-tabs-newtab-button {
+    --toolbarbutton-hover-background: light-dark(#ffffff38, #ffffff17);
+    --toolbarbutton-active-background: var(--lg-floating-card);
+  }
+}

@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 let settings, modified=0, ack;
+const preferences=new Map();
 const style=new Map();
 globalThis.Ci={nsIFile:{}};
 globalThis.Services={
  dirsvc:{get:()=>({path:'/profile'})},
- prefs:{setStringPref(){},setBoolPref(){},clearUserPref(){}},
+ prefs:{setStringPref(k,v){preferences.set(k,v)},setBoolPref(){},clearUserPref(){}},
  wm:{getEnumerator:()=>[{document:{documentElement:{style:{setProperty:(k,v)=>style.set(k,v)}},getElementById:()=>null}}]},
  appinfo:{version:'test',appBuildID:'build'}
 };
@@ -47,3 +48,11 @@ console.log('PASS: floating sidebar material excludes slide-out gutters and incl
 
 assert.ok(!css.includes(':root:is([zen-compact-mode="true"], [macOSNativeFullscreen], [sizemode="fullscreen"], [inDOMFullscreen])'));
 console.log('PASS: native fullscreen alone cannot enable the floating sidebar material');
+
+for(const appearance of ['universal','glass',undefined,'invalid']){
+ settings={...settings,appearance,revision:String(++modified)};
+ await readSettings();
+ assert.equal(preferences.get('mod.zenliquid.appearance'),appearance==='universal'?'universal':'glass');
+ assert.equal(ack.appearance,appearance==='universal'?'universal':'glass');
+}
+console.log('PASS: appearance switches live and legacy settings retain glass');

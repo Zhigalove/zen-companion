@@ -161,6 +161,13 @@ struct MainView: View {
         Toggle("Улучшения", isOn: $model.settings.enabled).toggleStyle(.switch).onChange(
           of: model.settings.enabled
         ) { _, _ in model.save() }
+        Picker("Оформление", selection: Binding(
+          get: { model.settings.appearance ?? "glass" },
+          set: { model.settings.appearance = $0; model.save() }
+        )) {
+          Text("Стекло").tag("glass")
+          Text("Универсальное").tag("universal")
+        }.pickerStyle(.segmented).disabled(!model.settings.enabled)
         VStack(alignment: .leading, spacing: 10) {
           HStack {
             Text("Прозрачность")
