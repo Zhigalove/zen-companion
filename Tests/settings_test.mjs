@@ -42,9 +42,7 @@ assert.ok(material.includes('box-sizing: border-box !important;'));
 assert.ok(material.includes('box-shadow: inset 0 0 0 1px var(--lg-edge), var(--lg-shadow) !important;'));
 assert.ok(frame.includes(overlaySelector+' .zen-toolbar-background {\n  display: none !important;'));
 assert.ok(css.lastIndexOf(overlaySelector+' {')>css.indexOf(':root[inDOMFullscreen] #navigator-toolbox .zen-toolbar-background'));
-const floatingFill=css.match(/var\(--lg-nav-tint\) calc\(100% - var\(--lg-transparency\) \* (\.08)\)/);
-assert.ok(floatingFill,'Floating navigation must remain readable without remote blur');
-for(const transparency of [0,40,100])assert.ok(100-transparency*Number(floatingFill[1])>=92);
+assert.ok(!css.includes('var(--lg-transparency) * .08'),'Floating navigation must not override the shared opacity curve');
 console.log('PASS: floating sidebar material excludes slide-out gutters and includes padding in its saved width');
 
 assert.ok(!css.includes(':root:is([zen-compact-mode="true"], [macOSNativeFullscreen], [sizemode="fullscreen"], [inDOMFullscreen])'));

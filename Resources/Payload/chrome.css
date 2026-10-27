@@ -749,13 +749,8 @@ findbar .findbar-container {
  * Paint inside the toolbox's slide-out gutters, on the sidebar itself.
  * Border-box keeps its native saved width inclusive of internal padding. */
 @-moz-document url-prefix("chrome://browser/content/browser") {
-/* shortcut: chrome blur does not reliably obscure remote page text on this
- * Zen build; keep a dense tint until cross-process backdrop blur is verified. */
-@media (not (prefers-reduced-transparency: reduce)) and (not (prefers-contrast: more)) and (not (forced-colors: active)) {
-  :root:is([zen-compact-mode="true"], [inDOMFullscreen]):not([customizing]) #navigator-toolbox {
-    --lg-fill: color-mix(in srgb, var(--lg-nav-tint) calc(100% - var(--lg-transparency) * .08), transparent);
-  }
-}
+/* Floating navigation inherits the same adjustable material as search.
+ * Do not replace its opacity curve with a near-opaque readability fallback. */
 :root:is([zen-compact-mode="true"], [inDOMFullscreen]):not([customizing]) #navigator-toolbox {
   background: transparent !important;
   backdrop-filter: none !important;
