@@ -828,15 +828,15 @@ findbar .findbar-container {
  * Bound backdrop luminance for stable foreground contrast across page palettes. */
 @media -moz-pref("mod.zenliquid.appearance", "universal") and (not -moz-pref("mod.zenliquid.app-disabled")) and (not (prefers-reduced-transparency: reduce)) and (not (prefers-contrast: more)) and (not (forced-colors: active)) {
   :root, #navigator-toolbox, zen-library {
-    --lg-canvas: #24262b;
-    --lg-tint: #24262b;
+    --lg-canvas: #808080;
+    --lg-tint: #808080;
     --lg-nav-tint: var(--lg-tint);
-    --lg-fill: color-mix(in srgb, var(--lg-tint) max(12%, calc(100% - var(--lg-transparency) * .88)), transparent);
+    --lg-fill: color-mix(in srgb, var(--lg-tint) max(4%, calc(100% - var(--lg-transparency))), transparent);
     --lg-surface: linear-gradient(var(--lg-fill), var(--lg-fill));
     --lg-text: #f4f5f7;
-    --lg-filter: blur(14px) saturate(130%) contrast(.65) brightness(.75);
-    --lg-floating-card: #e5e9f528;
-    --lg-floating-edge: #e5e9f52b;
+    --lg-filter: blur(14px) saturate(115%);
+    --lg-floating-card: #80808024;
+    --lg-floating-edge: #ffffff30;
     --lg-selected: var(--lg-floating-card);
     --lg-shadow: 0 6px 22px #00000012;
     --lg-edge: #ffffff19;
@@ -861,4 +861,21 @@ findbar .findbar-container {
     --toolbarbutton-hover-background: #ffffff17;
     --toolbarbutton-active-background: var(--lg-floating-card);
   }
+  /* Contrast is local to monochrome foregrounds, never to website favicons.
+   * A local dark halo preserves white glyphs without tinting the whole panel. */
+  #navigator-toolbox :is(label, .tab-label, .toolbarbutton-text, .tab-group-label),
+  #navigator-toolbox .toolbarbutton-icon,
+  #urlbar-input,
+  #urlbar :is(.urlbarView-title, .urlbarView-action, .urlbarView-url, .urlbarView-title-separator),
+  #zen-media-controls-toolbar :is(label, .zen-media-title, .zen-media-artist, button) {
+    color: #ffffff !important;
+    fill: #ffffff !important;
+    text-shadow: 0 1px 2px #000000e0, 0 0 1px #000000e0 !important;
+  }
+  #navigator-toolbox .toolbarbutton-icon,
+  #zen-media-controls-toolbar button {
+    filter: drop-shadow(0 1px 1px #000000b0) !important;
+  }
+  #urlbar-input::placeholder { color: #ffffff !important; opacity: .75 !important; }
+  #navigator-toolbox #titlebar { isolation: auto !important; }
 }
