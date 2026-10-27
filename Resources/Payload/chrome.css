@@ -156,11 +156,11 @@ zen-library .zen-browser-grain { display: none !important; }
 :root:not([macOSNativeFullscreen]):not([sizemode="fullscreen"]):not([inDOMFullscreen]) zen-library {
   --lg-fill: color-mix(in srgb, var(--lg-tint) max(10%, calc(100% - var(--lg-transparency) * .94)), transparent);
   background: var(--lg-fill) !important;
-  backdrop-filter: blur(12px) saturate(110%) contrast(.35) brightness(1.5) !important;
+  backdrop-filter: blur(20px) saturate(140%) contrast(.6) brightness(2) !important;
 }
 @media (-moz-system-dark-theme) {
   :root:not([macOSNativeFullscreen]):not([sizemode="fullscreen"]):not([inDOMFullscreen]) zen-library {
-    backdrop-filter: blur(12px) saturate(110%) contrast(.35) brightness(.7) !important;
+    backdrop-filter: blur(20px) saturate(140%) contrast(.75) brightness(.5) !important;
   }
 }
 :root:not([macOSNativeFullscreen]):not([sizemode="fullscreen"]):not([inDOMFullscreen]) zen-library :is(#zen-library-panel, #zen-library-content) {
@@ -251,7 +251,7 @@ zen-library .zen-browser-grain { display: none !important; }
 #navigator-toolbox {
   --lg-text: light-dark(#19212c, #f3f5f9);
   --lg-nav-tint: light-dark(#f3f6fc, #252932);
-  --lg-filter: blur(12px) saturate(110%) contrast(.35) brightness(1.5);
+  --lg-filter: blur(20px) saturate(140%) contrast(.6) brightness(2);
   --lg-fill: color-mix(in srgb, var(--lg-nav-tint) max(10%, calc(100% - var(--lg-transparency) * .94)), transparent);
   --lg-surface: linear-gradient(var(--lg-fill), var(--lg-fill));
   --lg-selected: color-mix(in srgb, light-dark(#dce4ef, #7487a4) calc(66% - var(--lg-transparency) * .24), transparent);
@@ -264,7 +264,7 @@ zen-library .zen-browser-grain { display: none !important; }
   color: var(--lg-text) !important;
 }
 @media (-moz-system-dark-theme) {
-  #navigator-toolbox { --lg-filter: blur(12px) saturate(110%) contrast(.35) brightness(.7); }
+  #navigator-toolbox { --lg-filter: blur(20px) saturate(140%) contrast(.75) brightness(.5); }
 }
 #navigator-toolbox :is(label, .toolbarbutton-text, .tab-group-label) {
   color: var(--lg-text) !important;
@@ -323,14 +323,14 @@ zen-library .zen-browser-grain { display: none !important; }
 /* Only the expanded search/results surface floats above navigation. */
 #urlbar:is([open], [breakout-extend="true"]) .urlbar-background {
   background: color-mix(in srgb, light-dark(#f3f6fc, #252932) max(10%, calc(100% - var(--lg-transparency) * .94)), transparent) !important;
-  backdrop-filter: blur(12px) saturate(110%) contrast(.35) brightness(1.5) !important;
+  backdrop-filter: blur(20px) saturate(140%) contrast(.6) brightness(2) !important;
   border: 0 !important;
   border-radius: 18px !important;
   box-shadow: var(--lg-shadow) !important;
 }
 @media (-moz-system-dark-theme) {
   #urlbar:is([open], [breakout-extend="true"]) .urlbar-background {
-    backdrop-filter: blur(12px) saturate(110%) contrast(.35) brightness(.7) !important;
+    backdrop-filter: blur(20px) saturate(140%) contrast(.75) brightness(.5) !important;
   }
 }
 /* Text surfaces use a coherent foreground/background pair, never the page's
@@ -778,10 +778,10 @@ findbar .findbar-container {
 :root {
   color-scheme: light dark;
   --lg-fill: color-mix(in srgb, var(--lg-tint) max(10%, calc(100% - var(--lg-transparency) * .94)), transparent);
-  --lg-filter: blur(12px) saturate(110%) contrast(.35) brightness(1.5);
+  --lg-filter: blur(20px) saturate(140%) contrast(.6) brightness(2);
 }
 @media (-moz-system-dark-theme) {
-  :root { --lg-filter: blur(12px) saturate(110%) contrast(.35) brightness(.7); }
+  :root { --lg-filter: blur(20px) saturate(140%) contrast(.75) brightness(.5); }
 }
 #controls .panel .box {
   background: var(--lg-surface) !important;
