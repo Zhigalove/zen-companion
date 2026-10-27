@@ -19,12 +19,12 @@ for(const transparency of [100,40,0,70]){
  assert.equal(ack.revision,settings.revision);
 }
 const css=await readFile(new URL('../Resources/Payload/chrome.css',import.meta.url),'utf8');
-const fills=[...css.matchAll(/max\(25%, calc\(100% - var\(--lg-transparency\)(?: \* (\.94))?\)\)/g)];
+const fills=[...css.matchAll(/max\(10%, calc\(100% - var\(--lg-transparency\)(?: \* (\.94))?\)\)/g)];
 assert.equal(fills.length,5,'Every adjustable material must retain a minimum fill');
 for(const [,factor] of fills){
- const fill=t=>Math.max(25,100-t*Number(factor??1));
+ const fill=t=>Math.max(10,100-t*Number(factor??1));
  assert.equal(fill(0),100);
- assert.equal(fill(100),25);
+ assert.equal(fill(100),10);
  assert.ok(fill(40)>fill(100));
 }
 console.log('PASS: 100 -> 40 -> 0 -> 70 without a Zen Mods holder; material retains fill');
