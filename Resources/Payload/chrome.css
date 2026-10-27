@@ -828,23 +828,23 @@ findbar .findbar-container {
  * Bound backdrop luminance for stable foreground contrast across page palettes. */
 @media -moz-pref("mod.zenliquid.appearance", "universal") and (not -moz-pref("mod.zenliquid.app-disabled")) and (not (prefers-reduced-transparency: reduce)) and (not (prefers-contrast: more)) and (not (forced-colors: active)) {
   :root, #navigator-toolbox, zen-library {
-    --lg-canvas: light-dark(#f2f3f5, #24262b);
-    --lg-tint: light-dark(#f2f3f5, #24262b);
+    --lg-canvas: #24262b;
+    --lg-tint: #24262b;
     --lg-nav-tint: var(--lg-tint);
     --lg-fill: color-mix(in srgb, var(--lg-tint) max(12%, calc(100% - var(--lg-transparency) * .88)), transparent);
     --lg-surface: linear-gradient(var(--lg-fill), var(--lg-fill));
-    --lg-text: light-dark(#20242b, #f4f5f7);
-    --lg-filter: blur(18px) saturate(65%) contrast(.4) brightness(1.8);
-    --lg-floating-card: light-dark(#ffffff48, #e5e9f528);
-    --lg-floating-edge: light-dark(#4b556323, #e5e9f52b);
+    --lg-text: #f4f5f7;
+    --lg-filter: blur(14px) saturate(130%) contrast(.65) brightness(.75);
+    --lg-floating-card: #e5e9f528;
+    --lg-floating-edge: #e5e9f52b;
     --lg-selected: var(--lg-floating-card);
     --lg-shadow: 0 6px 22px #00000012;
-    --lg-edge: light-dark(#323b4814, #ffffff19);
+    --lg-edge: #ffffff19;
   }
-  @media (-moz-system-dark-theme) {
-    :root, #navigator-toolbox, zen-library {
-      --lg-filter: blur(18px) saturate(65%) contrast(.4) brightness(.65);
-    }
+  :root, #navigator-toolbox, #titlebar, #nav-bar, .zen-browser-generic-background,
+  #urlbar, #searchbar, panel, menupopup, #sidebar-box, dialog, .dialogBox,
+  #statuspanel, #statuspanel-label, findbar, zen-library {
+    color-scheme: dark !important;
   }
   #urlbar:is([open], [breakout-extend="true"]) .urlbar-background,
   :root:not([macOSNativeFullscreen]):not([sizemode="fullscreen"]):not([inDOMFullscreen]) zen-library {
@@ -858,7 +858,7 @@ findbar .findbar-container {
   }
   #navigator-toolbox #tabs-newtab-button,
   #navigator-toolbox #vertical-tabs-newtab-button {
-    --toolbarbutton-hover-background: light-dark(#ffffff38, #ffffff17);
+    --toolbarbutton-hover-background: #ffffff17;
     --toolbarbutton-active-background: var(--lg-floating-card);
   }
 }

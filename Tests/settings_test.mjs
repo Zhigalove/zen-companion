@@ -56,3 +56,9 @@ for(const appearance of ['universal','glass',undefined,'invalid']){
  assert.equal(ack.appearance,appearance==='universal'?'universal':'glass');
 }
 console.log('PASS: appearance switches live and legacy settings retain glass');
+
+const universal=css.slice(css.indexOf('/* Optional neutral material.'));
+assert.ok(universal.includes('color-scheme: dark !important;'));
+assert.ok(!universal.includes('light-dark('));
+assert.ok(!universal.includes('-moz-system-dark-theme'));
+console.log('PASS: universal palette is independent of system theme');
