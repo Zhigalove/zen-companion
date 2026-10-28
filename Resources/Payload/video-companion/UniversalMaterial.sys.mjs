@@ -3,12 +3,6 @@
 let timer=null,active=false,generation=0;
 const states=new WeakMap();
 const diagnostics={captures:0,rejectedDarkFrames:0,errors:0,lastMs:0};
-function clearSurface(n){
- n.removeAttribute('data-lg-material');n.style.removeProperty('--lg-live-backdrop');
- for(const child of n.querySelectorAll('[data-lg-ink]')){
-  child.removeAttribute('data-lg-ink');child.style.removeProperty('--lg-local-ink');
- }
-}
 function clear(w){
  for(const n of w.document.querySelectorAll('[data-lg-material]')){
   n.removeAttribute('data-lg-material');n.style.removeProperty('--lg-live-backdrop');
@@ -19,8 +13,8 @@ function clear(w){
 }
 // A page snapshot is not a desktop backdrop. Wide pages can have a black
 // margin exactly beneath navigation; turning that margin into an opaque image
-// destroys the real translucent material. Leave the CSS backdrop in charge
-// when the capture contains almost no usable luminance or color.
+// destroys the real translucent material. Skip this frame without tearing down
+// an already decoded material belonging to the same page.
 export function isDarkMargin(pixels){
  if(!pixels.length)return true;
  let dark=0;
@@ -57,19 +51,22 @@ function ink(w,surface,ctx,width,height){
 export async function updateWindow(w){
  if(!active||w.closed||w.document.hidden||w.windowUtils?.isWindowFullyOccluded||Services.focus.activeWindow!==w)return;
  let state=states.get(w);if(!state){
-  state={busy:false,next:0,errors:0};
-  state.invalidate=()=>{if(active){clear(w);state.next=0;}};
+  state={busy:false,next:0,errors:0,revision:0,source:null};
+  state.invalidate=()=>{if(active){clear(w);state.source=null;state.revision++;state.next=0;}};
+  state.resize=()=>{if(active){state.revision++;state.next=0;}};
   w.gBrowser?.tabContainer?.addEventListener('TabSelect',state.invalidate);
-  w.addEventListener?.('resize',state.invalidate);
+  w.addEventListener?.('resize',state.resize);
   states.set(w,state);
  }
  if(state.busy||Date.now()<state.next)return;
  if(state.errors>=3)state.errors=0;
  const d=w.document,b=w.gBrowser?.selectedBrowser;if(!b)return;
+ const source=b.browsingContext?.currentWindowGlobal;if(!source?.drawSnapshot)return;
+ if(state.source!==source){clear(w);state.source=source;state.revision++;}
  const nav=d.getElementById('titlebar'),search=d.querySelector('#urlbar:is([open],[breakout-extend="true"]) .urlbar-background'),library=d.querySelector('zen-library');
  // Avoid capturing search twice when it is still geometrically in navigation.
  const surfaces=[nav,search,library].filter(n=>visible(w,n));if(!surfaces.length)return;
- state.busy=true;const epoch=generation,start=Date.now();
+ state.busy=true;const epoch=generation,revision=state.revision,start=Date.now();
  try{
   for(const surface of surfaces){
    if(!active||epoch!==generation||w.closed)break;
@@ -77,18 +74,23 @@ export async function updateWindow(w){
    if(br.width<1||br.height<1)continue;
    const sw=Math.min(r.width,br.width),sh=Math.min(r.height,br.height);
    const rect=new w.DOMRect(Math.max(0,Math.min(br.width-sw,r.left-br.left)),Math.max(0,Math.min(br.height-sh,r.top-br.top)),sw,sh);
-   const global=b.browsingContext?.currentWindowGlobal;if(!global?.drawSnapshot)continue;
+   if(source!==b.browsingContext?.currentWindowGlobal)break;
    const scale=Math.min(.125,64/sw,180/sh);
-   const bitmap=await global.drawSnapshot(rect,scale,'white');
+   const bitmap=await source.drawSnapshot(rect,scale,'white');
    try{
-    if(!active||epoch!==generation||w.closed||Services.focus.activeWindow!==w||b!==w.gBrowser.selectedBrowser)break;
+    if(!active||epoch!==generation||revision!==state.revision||w.closed||Services.focus.activeWindow!==w||b!==w.gBrowser.selectedBrowser||source!==b.browsingContext?.currentWindowGlobal)break;
     const canvas=d.createElementNS('http://www.w3.org/1999/xhtml','canvas');
     canvas.width=bitmap.width;canvas.height=bitmap.height;
     const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(bitmap,0,0);
     if(isDarkMargin(ctx.getImageData(0,0,canvas.width,canvas.height).data)){
-     clearSurface(surface);diagnostics.rejectedDarkFrames++;continue;
+     diagnostics.rejectedDarkFrames++;continue;
     }
-    surface.style.setProperty('--lg-live-backdrop',`url("${canvas.toDataURL()}")`);
+    // Decode before replacing the visible texture. Replacing a CSS URL first
+    // can expose its backing color while the new image is still loading.
+    const url=canvas.toDataURL(),image=d.createElementNS('http://www.w3.org/1999/xhtml','img');
+    image.src=url;await image.decode();
+    if(!active||epoch!==generation||revision!==state.revision||w.closed||Services.focus.activeWindow!==w||b!==w.gBrowser.selectedBrowser||source!==b.browsingContext?.currentWindowGlobal)break;
+    surface.style.setProperty('--lg-live-backdrop',`url("${url}")`);
     surface.setAttribute('data-lg-material','ready');
     ink(w,surface,ctx,canvas.width,canvas.height);
     diagnostics.captures++;state.errors=0;
