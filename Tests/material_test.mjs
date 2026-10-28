@@ -19,3 +19,26 @@ m.setUniversalMaterial(false);resolveCapture({close(){closed++}});await first;
 assert.equal(closed,1,'discarded bitmap must be released');assert.equal(attrs.size,0,'late results cannot restore a disabled material');
 assert.equal(style.size,0);assert.equal(timer,null);
 console.log('PASS: capture gating, single in-flight request, cancellation and bitmap release');
+
+function pixels(rgb,count=100){return Uint8ClampedArray.from(Array.from({length:count},()=>[...rgb,255]).flat());}
+assert.equal(m.isDarkMargin(pixels([0,0,0])),true,'black margin must use the real CSS backdrop');
+assert.equal(m.isDarkMargin(pixels([18,18,18])),true,'near-black margin must use the real CSS backdrop');
+assert.equal(m.isDarkMargin(pixels([40,65,100])),false,'dark colored backdrops remain valid');
+assert.equal(m.isDarkMargin(pixels([255,255,255])),false,'light material remains valid');
+assert.equal(m.isDarkMargin(new Uint8ClampedArray(16)),true,'empty/transparent capture is not a material');
+console.log('PASS: black margins are not installed as opaque backdrops');
+
+let sample=pixels([80,110,160],4);
+w.document.createElementNS=()=>({getContext:()=>({drawImage(){},getImageData:()=>({data:sample})}),toDataURL:()=> 'data:image/png;base64,valid'});
+const now=Date.now;let clock=now()+20000;Date.now=()=>clock;
+m.setUniversalMaterial(true);
+let pending=m.updateWindow(w);resolveCapture({width:2,height:2,close(){closed++}});await pending;
+assert.equal(attrs.get('data-lg-material'),'ready','usable frame is applied');
+clock+=1000;sample=pixels([0,0,0],4);
+pending=m.updateWindow(w);resolveCapture({width:2,height:2,close(){closed++}});await pending;
+assert.equal(attrs.has('data-lg-material'),false,'dark frame removes the opaque material');
+assert.equal(style.has('--lg-live-backdrop'),false,'old capture cannot linger on a dark page');
+assert.equal(m.materialStatus().rejectedDarkFrames,1);
+assert.equal(closed,3,'both accepted and rejected bitmaps are released');
+m.setUniversalMaterial(false);Date.now=now;
+console.log('PASS: usable-to-black transition restores CSS material and releases images');

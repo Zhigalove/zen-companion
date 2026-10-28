@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "packageVersion": "2.3.54",
-  "appVersion": "0.3.0",
+  "appVersion": "0.3.1",
   "testedZen": [
     {
       "version": "1.23.4b",

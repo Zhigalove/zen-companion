@@ -2,7 +2,13 @@
 // capture. Low resolution snapshots never leave the chrome document's memory.
 let timer=null,active=false,generation=0;
 const states=new WeakMap();
-const diagnostics={captures:0,errors:0,lastMs:0};
+const diagnostics={captures:0,rejectedDarkFrames:0,errors:0,lastMs:0};
+function clearSurface(n){
+ n.removeAttribute('data-lg-material');n.style.removeProperty('--lg-live-backdrop');
+ for(const child of n.querySelectorAll('[data-lg-ink]')){
+  child.removeAttribute('data-lg-ink');child.style.removeProperty('--lg-local-ink');
+ }
+}
 function clear(w){
  for(const n of w.document.querySelectorAll('[data-lg-material]')){
   n.removeAttribute('data-lg-material');n.style.removeProperty('--lg-live-backdrop');
@@ -10,6 +16,18 @@ function clear(w){
  for(const n of w.document.querySelectorAll('[data-lg-ink]')){
   n.removeAttribute('data-lg-ink');n.style.removeProperty('--lg-local-ink');
  }
+}
+// A page snapshot is not a desktop backdrop. Wide pages can have a black
+// margin exactly beneath navigation; turning that margin into an opaque image
+// destroys the real translucent material. Leave the CSS backdrop in charge
+// when the capture contains almost no usable luminance or color.
+export function isDarkMargin(pixels){
+ if(!pixels.length)return true;
+ let dark=0;
+ for(let i=0;i<pixels.length;i+=4){
+  if(pixels[i+3]<16||Math.max(pixels[i],pixels[i+1],pixels[i+2])<24)dark++;
+ }
+ return dark/(pixels.length/4)>.85;
 }
 function visible(w,n){
  if(!n||n.hidden)return false;
@@ -67,6 +85,9 @@ export async function updateWindow(w){
     const canvas=d.createElementNS('http://www.w3.org/1999/xhtml','canvas');
     canvas.width=bitmap.width;canvas.height=bitmap.height;
     const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(bitmap,0,0);
+    if(isDarkMargin(ctx.getImageData(0,0,canvas.width,canvas.height).data)){
+     clearSurface(surface);diagnostics.rejectedDarkFrames++;continue;
+    }
     surface.style.setProperty('--lg-live-backdrop',`url("${canvas.toDataURL()}")`);
     surface.setAttribute('data-lg-material','ready');
     ink(w,surface,ctx,canvas.width,canvas.height);
