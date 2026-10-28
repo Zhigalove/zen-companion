@@ -14,7 +14,7 @@ function clear(w){
 // A page snapshot is not a desktop backdrop. Wide pages can have a black
 // margin exactly beneath navigation; turning that margin into an opaque image
 // destroys the real translucent material. Skip this frame without tearing down
-// an already decoded material belonging to the same page.
+// the decoded decorative material already on screen.
 export function isDarkMargin(pixels){
  if(!pixels.length)return true;
  let dark=0;
@@ -52,7 +52,7 @@ export async function updateWindow(w){
  if(!active||w.closed||w.document.hidden||w.windowUtils?.isWindowFullyOccluded||Services.focus.activeWindow!==w)return;
  let state=states.get(w);if(!state){
   state={busy:false,next:0,errors:0,revision:0,source:null};
-  state.invalidate=()=>{if(active){clear(w);state.source=null;state.revision++;state.next=0;}};
+  state.invalidate=()=>{if(active){state.source=null;state.revision++;state.next=0;void updateWindow(w);}};
   state.resize=()=>{if(active){state.revision++;state.next=0;}};
   w.gBrowser?.tabContainer?.addEventListener('TabSelect',state.invalidate);
   w.addEventListener?.('resize',state.resize);
@@ -62,7 +62,10 @@ export async function updateWindow(w){
  if(state.errors>=3)state.errors=0;
  const d=w.document,b=w.gBrowser?.selectedBrowser;if(!b)return;
  const source=b.browsingContext?.currentWindowGlobal;if(!source?.drawSnapshot)return;
- if(state.source!==source){clear(w);state.source=source;state.revision++;}
+ // Keep the visible material during a tab/document handoff. Only an
+ // already decoded, current-source result may replace it; never flash the
+ // unrelated CSS backing layer between the two documents.
+ if(state.source!==source){state.source=source;state.revision++;}
  const nav=d.getElementById('titlebar'),search=d.querySelector('#urlbar:is([open],[breakout-extend="true"]) .urlbar-background'),library=d.querySelector('zen-library');
  // Avoid capturing search twice when it is still geometrically in navigation.
  const surfaces=[nav,search,library].filter(n=>visible(w,n));if(!surfaces.length)return;

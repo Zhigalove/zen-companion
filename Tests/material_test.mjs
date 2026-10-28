@@ -4,7 +4,7 @@ const rect={left:0,top:0,right:230,bottom:700,width:230,height:700};
 const surface={hidden:false,getBoundingClientRect:()=>rect,querySelectorAll:()=>[],getAttribute:k=>attrs.get(k),setAttribute:(k,v)=>attrs.set(k,v),removeAttribute:k=>attrs.delete(k),style:{setProperty:(k,v)=>style.set(k,v),removeProperty:k=>style.delete(k)}};
 const browser={getBoundingClientRect:()=>rect,browsingContext:{currentWindowGlobal:{drawSnapshot:()=>{captures++;return new Promise(r=>resolveCapture=r)}}}};
 const listeners={};
-const w={addEventListener:(name,fn)=>listeners[name]=fn,closed:false,innerWidth:1000,innerHeight:800,windowUtils:{isWindowFullyOccluded:false},gBrowser:{selectedBrowser:browser},DOMRect:class{constructor(x,y,width,height){Object.assign(this,{x,y,width,height})}},getComputedStyle:()=>({visibility:'visible',display:'flex'}),document:{hidden:false,getElementById:()=>surface,querySelector:()=>null,querySelectorAll:()=>attrs.size?[surface]:[],createElementNS:()=>({getContext:()=>({drawImage(){}}),toDataURL:()=> 'data:image/png;base64,test'})}};
+const w={addEventListener:(name,fn)=>listeners[name]=fn,closed:false,innerWidth:1000,innerHeight:800,windowUtils:{isWindowFullyOccluded:false},gBrowser:{selectedBrowser:browser,tabContainer:{addEventListener:(name,fn)=>listeners[name]=fn}},DOMRect:class{constructor(x,y,width,height){Object.assign(this,{x,y,width,height})}},getComputedStyle:()=>({visibility:'visible',display:'flex'}),document:{hidden:false,getElementById:()=>surface,querySelector:()=>null,querySelectorAll:()=>attrs.size?[surface]:[],createElementNS:()=>({getContext:()=>({drawImage(){}}),toDataURL:()=> 'data:image/png;base64,test'})}};
 globalThis.Services={obs:{addObserver(){}},focus:{activeWindow:w},prefs:{getStringPref:()=> '100%'},wm:{getEnumerator:()=>[w]}};
 globalThis.Ci={nsITimer:{TYPE_REPEATING_SLACK:1}};
 globalThis.Cc={'@mozilla.org/timer;1':{createInstance:()=>({initWithCallback(fn){timer=fn},cancel(){timer=null}})}};
@@ -43,12 +43,12 @@ listeners.resize();
 assert.equal(attrs.get('data-lg-material'),'ready','resize keeps the visible material until its replacement is decoded');
 browser.browsingContext.currentWindowGlobal={drawSnapshot:()=>{captures++;return new Promise(r=>resolveCapture=r)}};
 clock+=1000;pending=m.updateWindow(w);resolveCapture({width:2,height:2,close(){closed++}});await pending;
-assert.equal(attrs.has('data-lg-material'),false,'navigation clears the previous page texture even when the new page is black');
-assert.equal(style.has('--lg-live-backdrop'),false);
+assert.equal(attrs.get('data-lg-material'),'ready','navigation retains material until a decoded replacement exists');
+assert.equal(style.has('--lg-live-backdrop'),true);
 assert.equal(m.materialStatus().rejectedDarkFrames,2);
 assert.equal(closed,4,'accepted and rejected bitmaps are released');
 m.setUniversalMaterial(false);Date.now=now;
-console.log('PASS: transient black/resize retain material; navigation clears it');
+console.log('PASS: dark frames, resize and navigation retain material until replacement');
 
 let decodeReady;
 sample=pixels([80,110,160],4);
@@ -62,3 +62,23 @@ m.setUniversalMaterial(false);decodeReady();await pending;
 assert.equal(attrs.has('data-lg-material'),false,'late image decode cannot re-enable the material');
 assert.equal(closed,5);Date.now=now;
 console.log('PASS: replacement waits for decoding and checks cancellation again');
+
+// A -> B while an image is decoding: do not clear A or publish stale B
+// after the user has switched back to A.
+clock+=2000;Date.now=()=>clock;m.setUniversalMaterial(true);
+let serial=0,decoders=[];
+w.document.createElementNS=(_,tag)=>tag==='img'?{decode:()=>new Promise(r=>decoders.push(r))}:({getContext:()=>({drawImage(){},getImageData:()=>({data:sample})}),toDataURL:()=> 'data:image/png;base64,frame'+(++serial)});
+pending=m.updateWindow(w);resolveCapture({width:2,height:2,close(){closed++}});await Promise.resolve();decoders.shift()();await pending;
+const visibleA=style.get('--lg-live-backdrop');
+const browserA=browser,browserB={...browser,browsingContext:{currentWindowGlobal:{drawSnapshot:()=>new Promise(r=>resolveCapture=r)}}};
+w.gBrowser.selectedBrowser=browserB;
+listeners.TabSelect();
+assert.equal(attrs.get('data-lg-material'),'ready','TabSelect must not expose the backing layer');
+resolveCapture({width:2,height:2,close(){closed++}});await Promise.resolve();
+w.gBrowser.selectedBrowser=browserA;listeners.TabSelect();decoders.shift()();
+await Promise.resolve();await Promise.resolve();await Promise.resolve();
+assert.equal(style.get('--lg-live-backdrop'),visibleA,'decoded result for a departed tab cannot replace current material');
+clock+=2000;pending=m.updateWindow(w);resolveCapture({width:2,height:2,close(){closed++}});await Promise.resolve();decoders.shift()();await pending;
+assert.equal(attrs.get('data-lg-material'),'ready');assert.notEqual(style.get('--lg-live-backdrop'),visibleA,'fresh current-tab frame replaces the material');
+m.setUniversalMaterial(false);Date.now=now;
+console.log('PASS: A-B-A handoff never clears the material or publishes a departed tab');
