@@ -13,6 +13,8 @@ m.setUniversalMaterial(true);
 Services.focus.activeWindow=null;await m.updateWindow(w);assert.equal(captures,0,'inactive window must never capture');
 Services.focus.activeWindow=w;
 const first=m.updateWindow(w);await m.updateWindow(w);assert.equal(captures,1,'only one request can be in flight');
+m.setUniversalMaterial(false);m.setUniversalMaterial(true);await m.updateWindow(w);
+assert.equal(captures,1,'rapid off/on must retain the in-flight gate');
 m.setUniversalMaterial(false);resolveCapture({close(){closed++}});await first;
 assert.equal(closed,1,'discarded bitmap must be released');assert.equal(attrs.size,0,'late results cannot restore a disabled material');
 assert.equal(style.size,0);assert.equal(timer,null);

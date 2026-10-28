@@ -40,7 +40,7 @@ export async function updateWindow(w){
  if(!active||w.closed||w.document.hidden||w.windowUtils?.isWindowFullyOccluded||Services.focus.activeWindow!==w)return;
  let state=states.get(w);if(!state){
   state={busy:false,next:0,errors:0};
-  state.invalidate=()=>{clear(w);state.next=0;};
+  state.invalidate=()=>{if(active){clear(w);state.next=0;}};
   w.gBrowser?.tabContainer?.addEventListener('TabSelect',state.invalidate);
   w.addEventListener?.('resize',state.invalidate);
   states.set(w,state);
@@ -83,7 +83,7 @@ export function setUniversalMaterial(enabled){
  if(active===enabled)return;
  active=enabled;generation++;
  if(!enabled){timer?.cancel();timer=null;for(const w of Services.wm.getEnumerator('navigator:browser')){
-  clear(w);const s=states.get(w);if(s){w.gBrowser?.tabContainer?.removeEventListener('TabSelect',s.invalidate);w.removeEventListener?.('resize',s.invalidate);states.delete(w);}
+  clear(w);const s=states.get(w);if(s)s.next=0; // Retain the busy gate across rapid off/on toggles.
  }return;}
  timer=Cc['@mozilla.org/timer;1'].createInstance(Ci.nsITimer);
  timer.initWithCallback(()=>{for(const w of Services.wm.getEnumerator('navigator:browser'))void updateWindow(w);},750,Ci.nsITimer.TYPE_REPEATING_SLACK);
