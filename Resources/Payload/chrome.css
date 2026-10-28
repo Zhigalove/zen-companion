@@ -868,15 +868,15 @@ findbar .findbar-container {
   #urlbar-input,
   #urlbar :is(.urlbarView-title, .urlbarView-action, .urlbarView-url, .urlbarView-title-separator),
   #zen-media-controls-toolbar :is(label, .zen-media-title, .zen-media-artist, button) {
-    color: #ffffff !important;
-    fill: #ffffff !important;
+    color: var(--lg-local-ink, var(--lg-text)) !important;
+    fill: currentColor !important;
     text-shadow: none !important;
   }
   #navigator-toolbox .toolbarbutton-icon,
   #zen-media-controls-toolbar button {
     filter: none !important;
   }
-  #urlbar-input::placeholder { color: #ffffff !important; opacity: .75 !important; }
+  #urlbar-input::placeholder { color: var(--lg-local-ink, var(--lg-text)) !important; opacity: .75 !important; }
   #navigator-toolbox #titlebar { isolation: auto !important; }
   /* One library material in desktop windows and fullscreen Spaces alike. */
   :root zen-library,
@@ -892,6 +892,40 @@ findbar .findbar-container {
   :root zen-library .zen-browser-generic-background::after {
     background: transparent !important;
     box-shadow: none !important;
+  }
+
+  /* Frosted transfer model inspired by sohumsuthar/liquid-glass (MIT).
+   * Explicit image source follows the capture-based approach used by web glass
+   * libraries; it bypasses chrome/remote-browser backdrop sampling limitations. */
+  :root:is([zen-compact-mode="true"], [inDOMFullscreen]):not([customizing]) #navigator-toolbox #titlebar[data-lg-material="ready"],
+  #navigator-toolbox #titlebar[data-lg-material="ready"],
+  #urlbar .urlbar-background[data-lg-material="ready"],
+  :root zen-library[data-lg-material="ready"],
+  :root:not([macOSNativeFullscreen]):not([sizemode="fullscreen"]):not([inDOMFullscreen]) zen-library[data-lg-material="ready"] {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    isolation: isolate !important;
+  }
+  #titlebar[data-lg-material="ready"] { position: relative; }
+  [data-lg-material="ready"]::before,
+  [data-lg-material="ready"]::after {
+    content: "" !important; position: absolute; inset: 0; pointer-events: none;
+    border-radius: inherit; clip-path: inset(0 round 18px);
+  }
+  [data-lg-material="ready"]::before {
+    z-index: -2; background: var(--lg-live-backdrop) center / 100% 100% no-repeat !important;
+    filter: blur(10px) saturate(172%) brightness(.67);
+  }
+  [data-lg-material="ready"]::after {
+    z-index: -1;
+    background: linear-gradient(var(--lg-fill),var(--lg-fill)),linear-gradient(#ffffff22,#ffffff22) !important;
+  }
+
+  #urlbar:is([open], [breakout-extend="true"]) .urlbarView-row[selected] [data-lg-ink],
+  [data-lg-material] [data-lg-ink] {
+    color: var(--lg-local-ink) !important;
+    fill: currentColor !important;
+    text-shadow: none !important;
   }
 
 }

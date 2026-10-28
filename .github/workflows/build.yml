@@ -14,7 +14,9 @@ jobs:
       - name: Build for the runner architecture
         run: ZEN_COMPANION_ARCH="$(uname -m)" ./build.sh
       - name: Settings bridge tests
-        run: node Tests/settings_test.mjs
+        run: |
+          node Tests/settings_test.mjs
+          node Tests/material_test.mjs
       - name: Isolated installer tests
         run: python3 Tests/backend_test.py
       - name: Update signature tests
