@@ -11,11 +11,11 @@ export function fullscreenCursorFor(w){
  function frames(){return w.gBrowser.selectedBrowser.browsingContext.getAllBrowsingContextsInSubtree();}
  function eachFrame(fn){for(const bc of frames())try{const g=bc.currentWindowGlobal;if(g)fn(g.getActor('UltimateGlassVideo'));}catch{}}
  function prune(){for(const [g] of media)try{if(g.isClosed||g.browsingContext.top.embedderElement!==w.gBrowser.selectedBrowser)media.delete(g);}catch{media.delete(g);}}
- const records=[],until=Date.now()+15*60*1000;let logTimer=0;
+ const records=[],until=Date.now()+15*60*1000;let logTimer=0,diagnosticKey='';
  const path=Services.dirsvc.get('ProfD',Ci.nsIFile).path+'/ultimate-cursor-diagnostics.json';
  function record(reason){
   if(closed||Date.now()>until)return;
-  records.push({time:Date.now(),reason,hidden,foreground:foreground(),mediaFrames:media.size,css:lastPolicy?.css||null,native:nativeCursorStatus()});if(records.length>32)records.shift();
+  records.push({time:Date.now(),reason,hidden,foreground:foreground(),mediaFrames:media.size,css:lastPolicy?.css||null,pip:lastPolicy?.pip||null,error:lastPolicy?.error||null,native:nativeCursorStatus()});if(records.length>32)records.shift();
   if(!logTimer)logTimer=w.setTimeout(()=>{logTimer=0;IOUtils.writeJSON(path,{version:'2.3.51',controller:'css-cursor-sync',records:[...records]}).catch(e=>console.error('[Ultimate Glass cursor]',e));},500);
  }
  function setHidden(value){
@@ -59,7 +59,7 @@ export function fullscreenCursorFor(w){
   try{
    const contexts=frames();let bc=browser.browsingContext,policy=null;
    for(let depth=0;depth<16&&bc?.currentWindowGlobal;depth++){
-    policy=await bc.currentWindowGlobal.getActor('UltimateGlassVideo').sendQuery('CursorPolicy',point);
+    policy=await bc.currentWindowGlobal.getActor('UltimateGlassVideo').sendQuery('CursorPolicy',{...point,cursorHidden:hidden,diagnostics:Date.now()<until});
     if(!policy?.inside)break;
     if(!policy.child)break;
     bc=contexts.find(c=>c.id===policy.child);
@@ -67,8 +67,9 @@ export function fullscreenCursorFor(w){
    }
    const current=pointerLocation();
    if(closed||stamp!==epoch||browser!==w.gBrowser.selectedBrowser||!foreground()||!enabled()||!current||current.x!==point.x||current.y!==point.y)return;
+   if(Date.now()<until){const key=JSON.stringify(policy?.pip||null);if(key!==diagnosticKey){diagnosticKey=key;lastPolicy=policy;record('pip-sync-state');}}
    lastPolicy=policy;setHidden(insideContent(current)&&!!policy?.inside&&policy.css==='none');
-  }catch(e){lastPolicy={css:'unavailable'};setHidden(false);}
+  }catch(e){const message=String(e);if(lastPolicy?.error!==message){lastPolicy={css:'unavailable',error:message};record('policy-error');}setHidden(false);}
   finally{inFlight=false;}
  }
  function sync(){

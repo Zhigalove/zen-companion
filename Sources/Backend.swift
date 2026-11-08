@@ -125,20 +125,19 @@ final class Backend {
     let ini = text(zen.appendingPathComponent("Contents/Resources/application.ini"))
     let buildID =
       ini.components(separatedBy: .newlines).first { $0.hasPrefix("BuildID=") }?.dropFirst(8) ?? ""
-    guard
-      try compatibility.testedZen.contains(where: {
-        $0.version == v && $0.bundleBuild == build && $0.buildID == buildID
-      })
-    else {
-      return Report(
-        status: "blocked",
-        message: "Zen \(v): совместимость ещё не подтверждена. Изменения не применяются.",
-        version: v)
+    let current = TestedZen(version: v, bundleBuild: build, buildID: String(buildID))
+    let known = try compatibility.testedZen.contains { $0.version == v && $0.bundleBuild == build && $0.buildID == buildID }
+    let applied = preferences().testedZen.contains { $0.version == v && $0.bundleBuild == build && $0.buildID == buildID }
+    if !known && !applied {
+      return Report(status: "update-ready", message: "Zen \(current.version) обновлён. Примените улучшения к новой версии.", version: v)
     }
-    return Report(status: "compatible", message: "Zen \(v) поддерживается", version: v)
+    return Report(status: "compatible", message: "Zen \(v): улучшения доступны", version: v)
   }
   func preferences() -> Preferences {
-    if let s = try? readJSON(Preferences.self, settingsURL) { return s }
+    if var s = try? readJSON(Preferences.self, settingsURL) {
+      if !["light", "dark", "system"].contains(s.appearance ?? "") { s.appearance = "system" }
+      return s
+    }
     var s = Preferences()
     let p = text(profile.appendingPathComponent("prefs.js"))
     let pattern = "user_pref\\(\"mod\\.zenliquid\\.transparency\",\\s*\"(\\d+)%\"\\)"
@@ -150,13 +149,22 @@ final class Backend {
     }
     return s
   }
-  func savePreferences(_ value: Preferences) throws {
+  func savePreferences(_ value: Preferences, applyingCurrentBuild: Bool = false) throws {
     try validateProfile()
     var s = value
     s.transparency = Int((Double(s.transparency) / 10).rounded()) * 10
-    s.appearance = s.appearance == "universal" ? "universal" : "glass"
+    s.appearance = ["light", "dark", "system"].contains(s.appearance ?? "") ? s.appearance : "system"
     s.revision = UUID().uuidString
-    s.testedZen = try compatibility.testedZen
+    s.testedZen = preferences().testedZen
+    for z in try compatibility.testedZen where !s.testedZen.contains(where: { $0.version == z.version && $0.buildID == z.buildID }) { s.testedZen.append(z) }
+    if applyingCurrentBuild {
+      let d = try metadata()
+      let ini = text(zen.appendingPathComponent("Contents/Resources/application.ini"))
+      let id = String(ini.components(separatedBy: .newlines).first { $0.hasPrefix("BuildID=") }?.dropFirst(8) ?? "")
+      let z = TestedZen(version: d["CFBundleShortVersionString"] as? String ?? "", bundleBuild: d["CFBundleVersion"] as? String ?? "", buildID: id)
+      s.testedZen.removeAll { $0.version == z.version && $0.buildID == z.buildID }
+      s.testedZen.append(z)
+    }
     try writeJSON(s, settingsURL)
     try writeJSON(config, base.appendingPathComponent("manager.json"))
   }
@@ -167,7 +175,7 @@ final class Backend {
   }
   func report() throws -> Report {
     let c = try check()
-    if c.status == "blocked" { return c }
+    if c.status == "blocked" || c.status == "update-ready" { return c }
     if !installed {
       return Report(
         status: "not-installed", message: "Готово к установке · текущие настройки будут сохранены",
@@ -361,7 +369,8 @@ final class Backend {
         user += "// END Ultimate Glass native macOS material\n"
       }
       try user.write(to: uj, atomically: true, encoding: .utf8)
-      try savePreferences(s)
+      try savePreferences(s, applyingCurrentBuild: true)
+      try? fm.removeItem(at: base.appendingPathComponent("manager-status.json"))
       try rebuildThemes()
       try repairLoader()
       try saveInstalledPayload()
@@ -475,7 +484,7 @@ final class Backend {
   }
   func checkedGuard() throws -> Report {
     let c = try check()
-    if c.status == "blocked" {
+    if c.status == "blocked" || c.status == "update-ready" {
       try writeJSON(c, base.appendingPathComponent("manager-status.json"))
       return c
     }

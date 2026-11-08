@@ -161,12 +161,13 @@ struct MainView: View {
         Toggle("Улучшения", isOn: $model.settings.enabled).toggleStyle(.switch).onChange(
           of: model.settings.enabled
         ) { _, _ in model.save() }
-        Picker("Оформление", selection: Binding(
-          get: { model.settings.appearance ?? "glass" },
+        Picker("Тема", selection: Binding(
+          get: { model.settings.appearance ?? "system" },
           set: { model.settings.appearance = $0; model.save() }
         )) {
-          Text("Стекло").tag("glass")
-          Text("Универсальное").tag("universal")
+          Text("Светлая").tag("light")
+          Text("Тёмная").tag("dark")
+          Text("Системная").tag("system")
         }.pickerStyle(.segmented).disabled(!model.settings.enabled)
         VStack(alignment: .leading, spacing: 10) {
           HStack {
@@ -228,7 +229,7 @@ struct MainView: View {
         Button(
           model.update != nil
             ? "Обновить Zen Companion"
-            : model.isInstalled ? "Обновить улучшения" : "Установить улучшения"
+            : model.report.status == "update-ready" ? "Применить к новой версии Zen" : model.isInstalled ? "Обновить улучшения" : "Установить улучшения"
         ) { if model.update != nil { model.installUpdate() } else { model.install() } }.buttonStyle(
           .borderedProminent
         ).disabled(model.busy || (model.report.status == "blocked" && model.update == nil))

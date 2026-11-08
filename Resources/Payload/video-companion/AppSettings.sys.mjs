@@ -1,15 +1,15 @@
 // User-scoped settings bridge. No network, page data or executable commands.
 let timer,stamp=-1,working=false,onApproved,started=false;
-const bridgeVersion = '0.3.3';
+const bridgeVersion = '0.3.4';
 const path=Services.dirsvc.get('ProfD',Ci.nsIFile).path+'/ultimate-glass-settings.json';
 const uiPreferences={"ui.textSelectAttentionBackground": "#3873c5", "ui.textSelectAttentionForeground": "#ffffff", "ui.textHighlightBackground": "#d9e8ff", "ui.textHighlightForeground": "#1b2b42", "ui.textSelectAttentionBackground.dark": "#90baff", "ui.textSelectAttentionForeground.dark": "#14243c", "ui.textHighlightBackground.dark": "#304c70", "ui.textHighlightForeground.dark": "#f2f6fc", "ui.-moz-autofill-background": "#edf3fc", "ui.-moz-autofill-background.dark": "#283b52"};
-function apply(enabled,transparency,appearance="glass"){
+function apply(enabled,transparency,appearance="system"){
  for(const [key,value] of Object.entries(uiPreferences)){if(enabled)Services.prefs.setStringPref(key,value);else Services.prefs.clearUserPref(key);}
  Services.prefs.setBoolPref('mod.zenliquid.app-disabled',!enabled);
  Services.prefs.setBoolPref('mod.zenliquid.video-companion.enabled',enabled);
  Services.prefs.setStringPref('mod.zenliquid.appearance',appearance);
  if(typeof ChromeUtils!=='undefined'){
-  ChromeUtils.importESModule('resource://ultimate-glass-video/UniversalMaterial.sys.mjs').setUniversalMaterial(enabled&&appearance==='universal');
+  ChromeUtils.importESModule('resource://ultimate-glass-video/UniversalMaterial.sys.mjs').setUniversalMaterial(false);
  }
  Services.prefs.setStringPref('mod.zenliquid.transparency',transparency+'%');
  for(const w of Services.wm.getEnumerator('navigator:browser')){
@@ -25,9 +25,9 @@ export async function readSettings(){
   const s=await IOUtils.readJSON(path);
   if(s.schema!==1||typeof s.enabled!=='boolean'||!Number.isInteger(s.transparency)||s.transparency<0||s.transparency>100)throw Error('Invalid settings');
   const approved=s.testedZen?.some(z=>z.version===Services.appinfo.version&&z.buildID===Services.appinfo.appBuildID);
-  apply(s.enabled&&!!approved,s.transparency,s.appearance==="universal"?"universal":"glass");stamp=stat.lastModified;
+  apply(s.enabled&&!!approved,s.transparency,["light","dark","system"].includes(s.appearance)?s.appearance:"system");stamp=stat.lastModified;
   if(approved&&onApproved&&!started){started=true;try{onApproved()}catch(e){started=false;throw e}}
-  await IOUtils.writeJSON(path+'.applied.json',{schema:1,bridgeVersion,companionStarted:started,revision:s.revision,enabled:s.enabled&&!!approved,transparency:s.transparency,appearance:s.appearance==="universal"?"universal":"glass",compatible:!!approved,appliedAt:Date.now()});
+  await IOUtils.writeJSON(path+'.applied.json',{schema:1,bridgeVersion,companionStarted:started,revision:s.revision,enabled:s.enabled&&!!approved,transparency:s.transparency,appearance:["light","dark","system"].includes(s.appearance)?s.appearance:"system",compatible:!!approved,appliedAt:Date.now()});
  }catch(e){
   apply(false,40);console.error('[Ultimate Glass settings]',e);
  }finally{working=false;}

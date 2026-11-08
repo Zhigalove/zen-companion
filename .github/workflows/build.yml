@@ -17,6 +17,7 @@ jobs:
         run: |
           node Tests/settings_test.mjs
           node Tests/material_test.mjs
+          node Tests/animeon_test.mjs
       - name: Isolated installer tests
         run: python3 Tests/backend_test.py
       - name: Update signature tests

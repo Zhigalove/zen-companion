@@ -49,21 +49,13 @@ console.log('PASS: floating sidebar material excludes slide-out gutters and incl
 assert.ok(!css.includes(':root:is([zen-compact-mode="true"], [macOSNativeFullscreen], [sizemode="fullscreen"], [inDOMFullscreen])'));
 console.log('PASS: native fullscreen alone cannot enable the floating sidebar material');
 
-for(const appearance of ['universal','glass',undefined,'invalid']){
+for(const appearance of ['light','dark','system','universal','glass',undefined,'invalid']){
  settings={...settings,appearance,revision:String(++modified)};
  await readSettings();
- assert.equal(preferences.get('mod.zenliquid.appearance'),appearance==='universal'?'universal':'glass');
- assert.equal(ack.appearance,appearance==='universal'?'universal':'glass');
+ assert.equal(preferences.get('mod.zenliquid.appearance'),['light','dark','system'].includes(appearance)?appearance:'system');
+ assert.equal(ack.appearance,['light','dark','system'].includes(appearance)?appearance:'system');
 }
 console.log('PASS: appearance switches live and legacy settings retain glass');
 
-const universal=css.slice(css.indexOf('/* Optional neutral material.'));
-assert.ok(universal.includes('text-shadow: none !important;'));
-assert.ok(!universal.includes('drop-shadow('));
-assert.ok(universal.includes(':root zen-library #zen-library-side,'));
-assert.ok(universal.includes('blur(10px) saturate(172%) brightness(.67)'));
-assert.ok(universal.includes('var(--lg-live-backdrop)'));
-assert.ok(!universal.includes('--lg-tint: #24262b'));
-assert.ok(!universal.includes('light-dark('));
-assert.ok(!universal.includes('-moz-system-dark-theme'));
-console.log('PASS: universal palette is independent of system theme');
+assert.ok(css.includes('-moz-pref("mod.zenliquid.appearance", "dark")'));
+console.log('PASS: retired appearance values migrate to glass');

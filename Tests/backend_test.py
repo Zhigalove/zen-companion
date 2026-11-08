@@ -2,7 +2,7 @@
 """Isolated installer/restore/compatibility tests. Never targets the live profile."""
 import json,plistlib,subprocess,tempfile,os,pathlib,hashlib,zipfile
 root=pathlib.Path(__file__).resolve().parents[1]
-binary=root/'build/Zen Companion.app/Contents/MacOS/ZenCompanion'
+binary=pathlib.Path(os.environ.get('ZEN_COMPANION_OUTPUT',str(root/'build/Zen Companion.app')))/'Contents/MacOS/ZenCompanion'
 sandbox=pathlib.Path(tempfile.mkdtemp(prefix='zen-companion-test-'))
 profile=sandbox/'profile';profile.mkdir();(profile/'chrome').mkdir();(profile/'prefs.js').write_text('user_pref("mod.zenliquid.transparency", "70%");\nuser_pref("unrelated", true);\n');(profile/'user.js').write_text('// unrelated config\n');(profile/'chrome/userContent.css').write_text('/* unrelated stylesheet */\n')
 (profile/'chrome/zen-themes/other').mkdir(parents=True);(profile/'chrome/zen-themes/other/chrome.css').write_text('/* unrelated mod */')
@@ -23,9 +23,9 @@ def run(*args,ok=True):
  return r
 # A legacy settings file has no appearance field; preserving the slider is required.
 run('--set','70','--appearance','universal')
-assert json.loads((profile/'ultimate-glass-settings.json').read_text())['appearance']=='universal'
+assert json.loads((profile/'ultimate-glass-settings.json').read_text())['appearance']=='system'
 run('--set','70','--appearance','glass')
-assert json.loads((profile/'ultimate-glass-settings.json').read_text())['appearance']=='glass'
+assert json.loads((profile/'ultimate-glass-settings.json').read_text())['appearance']=='system'
 (profile/'ultimate-glass-settings.json').unlink()
 before={str(p.relative_to(profile)):p.read_bytes() for p in profile.rglob('*') if p.is_file()}
 run('--install');settings=json.loads((profile/'ultimate-glass-settings.json').read_text());assert settings['transparency']==70
@@ -33,10 +33,16 @@ assert json.loads((profile/'chrome/zen-themes/e09b652e-7abc-47aa-94e0-91d5a35f62
 assert (profile/'prefs.js').read_bytes()==before['prefs.js'];assert 'unrelated mod' in (profile/'chrome/zen-themes.css').read_text()
 run('--set','60','--enabled','false');assert json.loads((profile/'ultimate-glass-settings.json').read_text())['enabled'] is False
 assert json.loads(run('--status').stdout)['restartRequired']
-# Unknown Zen is blocked even when our loader remains present.
+migration_backup=(base/'last-backup.json').read_bytes()
+# New Zen can be explicitly applied without claiming it was release-tested.
 info=app/'Contents/Info.plist';original=info.read_bytes();meta=plistlib.loads(original);meta['CFBundleShortVersionString']='99.0';info.write_bytes(plistlib.dumps(meta))
-assert json.loads(run('--guard').stdout)['status']=='blocked'
-run('--install',ok=False);info.write_bytes(original)
+assert json.loads(run('--guard').stdout)['status']=='update-ready'
+run('--install')
+assert any(z['version']=='99.0' for z in json.loads((profile/'ultimate-glass-settings.json').read_text())['testedZen'])
+assert json.loads(run('--status').stdout)['status']!='blocked'
+info.write_bytes(original)
+run('--restore')
+(base/'last-backup.json').write_bytes(migration_backup)
 # A foreign loader is never overwritten.
 foreign=res/'defaults/pref/foreign.js';foreign.parent.mkdir(parents=True,exist_ok=True);foreign.write_text('pref("general.config.filename", "foreign.cfg");')
 run('--install',ok=False);assert foreign.read_text().endswith(';');foreign.unlink()

@@ -60,8 +60,40 @@ export class UltimateGlassVideoChild extends JSWindowActorChild {
     }
     return true;
   }
-  syncPlayerUI(){
-    const v=this.presentationVideo?.get()||this.trackedVideo?.get();
+  currentPlayerVideo(){
+    // A player may replace <video> without navigating the document. Never
+    // let a detached presentation reference mask the currently bound video.
+    return [this.trackedVideo,this.fullscreenVideo,this.presentationVideo]
+      .map(ref=>ref?.get()).find(video=>video?.isConnected)||null;
+  }
+  syncCursorControls(video=this.currentPlayerVideo()){
+    const controls=video?.openOrClosedShadowRoot?.querySelector('.videocontrols');
+    if(this.cursorControls&&this.cursorControls!==controls)this.cursorControls.removeAttribute('data-ultimate-cursor-hidden');
+    this.cursorControls=controls||null;
+    controls?.toggleAttribute('data-ultimate-cursor-hidden',!!this.idle);
+  }
+  releasePipVisibility(){
+    const owned=this.pipVisibilityOwner;if(!owned)return;
+    const style=owned.toggle.style;
+    // Restore only our own override; leave any later native change intact.
+    if(style.getPropertyValue('display')==='none'&&style.getPropertyPriority('display')==='important'){
+      if(owned.value)style.setProperty('display',owned.value,owned.priority);
+      else style.removeProperty('display');
+    }
+    this.pipVisibilityOwner=null;
+  }
+  syncPipVisibility(){
+    const controls=this.currentPlayerVideo()?.openOrClosedShadowRoot?.querySelector('.videocontrols');
+    const toggle=controls?.querySelector?.('#pictureInPictureToggle');
+    if(this.pipVisibilityOwner?.toggle!==toggle)this.releasePipVisibility();
+    if(!toggle?.style)return;
+    const hide=!!this.idle||controls.getAttribute('data-ultimate-player-ui')==='hidden';
+    if(!hide){this.releasePipVisibility();return;}
+    if(!this.pipVisibilityOwner)this.pipVisibilityOwner={toggle,value:toggle.style.getPropertyValue('display'),priority:toggle.style.getPropertyPriority('display')};
+    if(toggle.style.getPropertyValue('display')!=='none'||toggle.style.getPropertyPriority('display')!=='important')toggle.style.setProperty('display','none','important');
+  }
+  syncPlayerUI(v=this.currentPlayerVideo()){
+
     if(!v?.isConnected||!Services.prefs.getBoolPref('mod.zenliquid.video-companion.enabled',true)){this.stopPresentation();return;}
     const shadow=v.openOrClosedShadowRoot,controls=shadow?.querySelector('.videocontrols');
     let visible=false,source='video-css';
@@ -70,6 +102,10 @@ export class UltimateGlassVideoChild extends JSWindowActorChild {
       source='youtube-controls';visible=!youtube.classList.contains('ytp-autohide')&&this.playerElementVisible(youtube.querySelector('.ytp-chrome-bottom'));
     }else if(ani?.querySelector('.interface-top, .interface-bottom')){
       source='aniliberty-controls';visible=[...ani.querySelectorAll('.interface-top, .interface-bottom')].some(el=>this.playerElementVisible(el));
+    }else if(v.matches('video.player-video')&&v.closest('.aon-fs-ui')?.querySelector(':scope > .bottom-0 button')){
+      // AnimeOn's own player fades its controls but keeps cursor:pointer
+      // on the video, including at the physical display edge.
+      source='animeon-controls';visible=this.playerElementVisible(v.closest('.aon-fs-ui').querySelector(':scope > .bottom-0'));
     }else if(v.controls&&controls?.querySelector('.controlBar')){
       source='native-controls';visible=this.playerElementVisible(controls.querySelector('.controlBar'));
     }else{
@@ -91,16 +127,23 @@ export class UltimateGlassVideoChild extends JSWindowActorChild {
       }
     }
     this.playerUIState={visible,source};
-    if(this.playerUIControls&&this.playerUIControls!==controls)this.playerUIControls.removeAttribute('data-ultimate-player-ui');
+    if(this.playerUIControls&&this.playerUIControls!==controls){
+      this.playerUIControls.removeAttribute('data-ultimate-player-ui');
+    }
     this.playerUIControls=controls;
+    this.syncCursorControls(v);
     const value=visible?'visible':'hidden';
     if(controls&&controls.getAttribute('data-ultimate-player-ui')!==value)controls.setAttribute('data-ultimate-player-ui',value);
+    this.syncPipVisibility();
     return this.playerUIState;
   }
   stopPresentation(){
     if(this.playerUITimer)this.contentWindow.clearInterval(this.playerUITimer);
     this.playerUITimer=null;
-    this.playerUIControls?.removeAttribute('data-ultimate-player-ui');this.playerUIControls=null;this.playerUIState=null;
+    this.playerUIControls?.removeAttribute('data-ultimate-player-ui');
+    this.playerUIControls=null;this.playerUIState=null;
+    this.cursorControls?.removeAttribute('data-ultimate-cursor-hidden');this.cursorControls=null;
+    this.releasePipVisibility();
     this.presentationResize?.disconnect();this.presentationAttrs?.disconnect();
     if(this.presentationChanged){this.contentWindow.removeEventListener('resize',this.presentationChanged);this.contentWindow.removeEventListener('scroll',this.presentationChanged,true);}
     if(this.presentationTimer)this.contentWindow.clearTimeout(this.presentationTimer);
@@ -122,11 +165,42 @@ export class UltimateGlassVideoChild extends JSWindowActorChild {
     }
     let child=null;
     if(node.localName==='iframe'||node.localName==='frame')child=node.browsingContext?.id||null;
-    const css=w.getComputedStyle(node).cursor;
+    let css=w.getComputedStyle(node).cursor;
+    const v=this.currentPlayerVideo();
+    if(v?.isConnected&&v.matches('video.player-video')&&v.closest('.aon-fs-ui')?.contains(node)){
+      const r=v.getBoundingClientRect(),ui=this.syncPlayerUI();
+      if(x>=r.left&&x<r.right&&y>=r.top&&y<r.bottom&&ui?.source==='animeon-controls'&&!ui.visible)css='none';
+    }
     return {inside:true,css:css.includes('url(')?'custom':css,child};
   }
+  pipSyncDiagnostics(){
+    try{
+      const video=this.currentPlayerVideo(),pageVideo=this.document.querySelector('video');
+      const controls=video?.openOrClosedShadowRoot?.querySelector('.videocontrols');
+      const pageControls=pageVideo?.openOrClosedShadowRoot?.querySelector('.videocontrols');
+      const toggle=controls?.querySelector('#pictureInPictureToggle');
+      return {revision:'pip-direct-hide-1',idle:!!this.idle,timer:!!this.playerUITimer,
+        inlineDisplay:toggle?.style.getPropertyValue('display')||null,inlinePriority:toggle?.style.getPropertyPriority('display')||null,
+        trackedConnected:!!this.trackedVideo?.get()?.isConnected,
+        presentationConnected:!!this.presentationVideo?.get()?.isConnected,
+        fullscreenConnected:!!this.fullscreenVideo?.get()?.isConnected,
+        hasVideo:!!video,hasPageVideo:!!pageVideo,sameVideo:video===pageVideo,
+        hasControls:!!controls,sameUI:controls===this.playerUIControls,sameCursor:controls===this.cursorControls,
+        cursorMarker:!!controls?.hasAttribute('data-ultimate-cursor-hidden'),
+        uiMarker:controls?.getAttribute('data-ultimate-player-ui')||null,
+        pageCursorMarker:!!pageControls?.hasAttribute('data-ultimate-cursor-hidden'),
+        pageUIMarker:pageControls?.getAttribute('data-ultimate-player-ui')||null};
+    }catch(e){return {revision:'pip-direct-hide-1',error:String(e)}}
+  }
   receiveMessage(message) {
-    if(message.name==='CursorPolicy')return this.readCursor(message.data);
+    if(message.name==='CursorPolicy'){
+      // Reconcile the current UA widget on the existing cursor poll. Firefox
+      // can recreate it while the cursor remains hidden, without a new edge.
+      if(typeof message.data.cursorHidden==='boolean')this.setIdle(message.data.cursorHidden);
+      const policy=this.readCursor(message.data);
+      if(message.data.diagnostics)policy.pip=this.pipSyncDiagnostics();
+      return policy;
+    }
     if(message.name==='PlayerUIState')return this.syncPlayerUI();
     if(message.name==='WatchPresentation'){this.watchPresentation();return;}
     if(message.name==='FullscreenContext'){
@@ -150,6 +224,9 @@ export class UltimateGlassVideoChild extends JSWindowActorChild {
   }
   setIdle(idle) {
     this.idle=idle;
+    // A separate hide-only reason: never overwrite the player's own UI state.
+    this.syncCursorControls();
+    this.syncPipVisibility();
     const fs=this.document.fullscreenElement;
     if(fs)fs.toggleAttribute('data-ultimate-video-idle',idle);
     this.document.documentElement.toggleAttribute('data-ultimate-video-idle',!!this.chromeFullscreen&&idle);
@@ -164,6 +241,7 @@ export class UltimateGlassVideoChild extends JSWindowActorChild {
       // Media events inside a closed author shadow tree do not reach the actor's document listener.
       if(video.getRootNode()!==this.document)for(const name of ['play','pause','ended'])video.addEventListener(name,this.playbackListener);
     }
+    if(this.presentationVideo?.get()!==video)this.watchPresentation(video);
     const shadow=video.openOrClosedShadowRoot;
     if(!shadow)return;
     if(this.observedShadow!==shadow){
@@ -177,7 +255,7 @@ export class UltimateGlassVideoChild extends JSWindowActorChild {
     }
     if(this.toggle&&this.toggle.hidden&&Services.prefs.getBoolPref('media.videocontrols.picture-in-picture.video-toggle.enabled',true)&&!video.isCloningElementVisually&&this.toggle.getAttribute('policy')!=='hidden')this.toggle.hidden=false;
     if(this.controls)this.controls.setAttribute('data-ultimate-fullscreen-video','active');
-    this.syncPlayerUI();
+    this.syncPlayerUI(video);
     this.setIdle(!!this.idle);
   }
 
@@ -191,6 +269,8 @@ export class UltimateGlassVideoChild extends JSWindowActorChild {
     for(const el of this.document.querySelectorAll('[data-ultimate-video-idle]'))el.removeAttribute('data-ultimate-video-idle');
     if(this.controls)this.controls.removeAttribute('data-ultimate-fullscreen-video');
     if(this.toggle&&this.originalHidden!=null)this.toggle.hidden=this.originalHidden;
+    this.cursorControls?.removeAttribute('data-ultimate-cursor-hidden');this.cursorControls=null;
+    this.releasePipVisibility();
     this.controls=null;this.toggle=null;this.originalHidden=null;
   }
   handleEvent(event) {

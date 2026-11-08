@@ -30,20 +30,19 @@
 :root:has(#theme-Ultimate-Liquid-Glass[mod-zenliquid-transparency="100%"]) { --lg-transparency: 100%; }
 
 
-/* Appearance follows the operating system, not the workspace/page palette or
- * Zen's explicit light/dark preference. No webpage document is targeted. */
+/* Appearance is chosen in Companion; system is the default. No webpage document is targeted. */
 :root, #navigator-toolbox, #titlebar, #nav-bar, .zen-browser-generic-background,
 #urlbar, #searchbar, panel, menupopup, #sidebar-box, dialog, .dialogBox, #statuspanel, #statuspanel-label, findbar, zen-library {
   color-scheme: light !important;
 }
-@media (-moz-system-dark-theme) {
+@media ((-moz-pref("mod.zenliquid.appearance", "dark")) or ((-moz-system-dark-theme) and (not -moz-pref("mod.zenliquid.appearance", "light")))) {
   :root, #navigator-toolbox, #titlebar, #nav-bar, .zen-browser-generic-background,
   #urlbar, #searchbar, panel, menupopup, #sidebar-box, dialog, .dialogBox, #statuspanel, #statuspanel-label, findbar, zen-library {
     color-scheme: dark !important;
   }
 }
 :root {
-  /* One setting: material opacity. Its palette follows macOS automatically. */
+  /* One setting: material opacity. Its palette follows the selected appearance. */
   --lg-canvas: light-dark(#f3f6fc, #1c1d22);
   --lg-tint: light-dark(#f3f6fc, #252932);
   --lg-fill: color-mix(in srgb, var(--lg-tint) max(4%, calc(100% - var(--lg-transparency) * 1.285714)), transparent);
@@ -158,7 +157,7 @@ zen-library .zen-browser-grain { display: none !important; }
   background: var(--lg-fill) !important;
   backdrop-filter: blur(9px) saturate(130%) contrast(.6) brightness(calc(226.6667% - var(--lg-transparency) * .666667)) !important;
 }
-@media (-moz-system-dark-theme) {
+@media ((-moz-pref("mod.zenliquid.appearance", "dark")) or ((-moz-system-dark-theme) and (not -moz-pref("mod.zenliquid.appearance", "light")))) {
   :root:not([macOSNativeFullscreen]):not([sizemode="fullscreen"]):not([inDOMFullscreen]) zen-library {
     backdrop-filter: blur(9px) saturate(130%) contrast(.75) brightness(calc(23.3333% + var(--lg-transparency) * .666667)) !important;
   }
@@ -263,7 +262,7 @@ zen-library .zen-browser-grain { display: none !important; }
   --toolbarbutton-icon-fill: var(--lg-text) !important;
   color: var(--lg-text) !important;
 }
-@media (-moz-system-dark-theme) {
+@media ((-moz-pref("mod.zenliquid.appearance", "dark")) or ((-moz-system-dark-theme) and (not -moz-pref("mod.zenliquid.appearance", "light")))) {
   #navigator-toolbox { --lg-filter: blur(9px) saturate(130%) contrast(.75) brightness(calc(23.3333% + var(--lg-transparency) * .666667)); }
 }
 #navigator-toolbox :is(label, .toolbarbutton-text, .tab-group-label) {
@@ -328,7 +327,7 @@ zen-library .zen-browser-grain { display: none !important; }
   border-radius: 18px !important;
   box-shadow: var(--lg-shadow) !important;
 }
-@media (-moz-system-dark-theme) {
+@media ((-moz-pref("mod.zenliquid.appearance", "dark")) or ((-moz-system-dark-theme) and (not -moz-pref("mod.zenliquid.appearance", "light")))) {
   #urlbar:is([open], [breakout-extend="true"]) .urlbar-background {
     backdrop-filter: blur(9px) saturate(130%) contrast(.75) brightness(calc(23.3333% + var(--lg-transparency) * .666667)) !important;
   }
@@ -396,6 +395,19 @@ panel input::placeholder, panel textarea::placeholder {
 }
 #urlbar .urlbarView-row[selected] :is(.urlbarView-action, .urlbarView-url, .urlbarView-title-separator) {
   color: var(--lg-field-text) !important;
+}
+/* Matched substrings are separate descendants. They must inherit the
+ * themed result text, including in Firefox's selected suggestion. */
+#urlbar :is(.urlbarView-title, .urlbarView-url, .urlbarView-action, .urlbarView-title-separator) :is(strong, b, span) {
+  color: inherit !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+/* Query matches retain weight and a restrained accent in either palette. */
+@media not (forced-colors: active) {
+  #urlbar :is(.urlbarView-title, .urlbarView-url, .urlbarView-action) :is(strong, b) {
+    color: light-dark(#3f5d85, #bbd2f6) !important;
+    -webkit-text-fill-color: currentColor !important;
+  }
 }
 /* Separators are generated text; bind their own color to the styled span.
  * Preserve Firefox's visibility/opacity rules for each result type. */
@@ -482,7 +494,7 @@ panel input::placeholder, panel textarea::placeholder {
   }
   /* Light mode: softly tinted glass shared by selected tabs and media.
    * Keep separation tonal, without a white slab or stacked dark shadows. */
-  @media not (-moz-system-dark-theme) {
+  @media not ((-moz-pref("mod.zenliquid.appearance", "dark")) or ((-moz-system-dark-theme) and (not -moz-pref("mod.zenliquid.appearance", "light")))) {
     #navigator-toolbox {
       --lg-floating-card: color-mix(in srgb, #eaf0f9 calc(55% - var(--lg-transparency) * .12), transparent);
       --lg-floating-edge: #829bc224;
@@ -780,7 +792,7 @@ findbar .findbar-container {
   --lg-fill: color-mix(in srgb, var(--lg-tint) max(4%, calc(100% - var(--lg-transparency) * 1.285714)), transparent);
   --lg-filter: blur(9px) saturate(130%) contrast(.6) brightness(calc(226.6667% - var(--lg-transparency) * .666667));
 }
-@media (-moz-system-dark-theme) {
+@media ((-moz-pref("mod.zenliquid.appearance", "dark")) or ((-moz-system-dark-theme) and (not -moz-pref("mod.zenliquid.appearance", "light")))) {
   :root { --lg-filter: blur(9px) saturate(130%) contrast(.75) brightness(calc(23.3333% + var(--lg-transparency) * .666667)); }
 }
 #controls .panel .box {
@@ -821,111 +833,5 @@ findbar .findbar-container {
   text-shadow: 0 1px 2px #0009;
 }
 }
-
-}
-
-/* Optional neutral material. Chrome only: no website selectors or content sheets.
- * Bound backdrop luminance for stable foreground contrast across page palettes. */
-@media -moz-pref("mod.zenliquid.appearance", "universal") and (not -moz-pref("mod.zenliquid.app-disabled")) and (not (prefers-reduced-transparency: reduce)) and (not (prefers-contrast: more)) and (not (forced-colors: active)) {
-  :root, #navigator-toolbox, zen-library {
-    --lg-canvas: #808080;
-    --lg-tint: #808080;
-    --lg-nav-tint: var(--lg-tint);
-    --lg-fill: color-mix(in srgb, var(--lg-tint) max(4%, calc(100% - var(--lg-transparency))), transparent);
-    --lg-surface: linear-gradient(var(--lg-fill), var(--lg-fill));
-    --lg-text: #f4f5f7;
-    --lg-filter: blur(14px) saturate(115%);
-    --lg-floating-card: #80808024;
-    --lg-floating-edge: #ffffff30;
-    --lg-selected: var(--lg-floating-card);
-    --lg-shadow: 0 6px 22px #00000012;
-    --lg-edge: #ffffff19;
-  }
-  :root, #navigator-toolbox, #titlebar, #nav-bar, .zen-browser-generic-background,
-  #urlbar, #searchbar, panel, menupopup, #sidebar-box, dialog, .dialogBox,
-  #statuspanel, #statuspanel-label, findbar, zen-library {
-    color-scheme: dark !important;
-  }
-  #urlbar:is([open], [breakout-extend="true"]) .urlbar-background,
-  :root:not([macOSNativeFullscreen]):not([sizemode="fullscreen"]):not([inDOMFullscreen]) zen-library {
-    background: var(--lg-surface) !important;
-    backdrop-filter: var(--lg-filter) !important;
-  }
-  #navigator-toolbox .tabbrowser-tab[selected] .tab-background,
-  #zen-media-controls-toolbar .zen-media-card {
-    background: var(--lg-floating-card) !important;
-    box-shadow: inset 0 0 0 2px var(--lg-floating-edge), 0 2px 8px #00000008 !important;
-  }
-  #navigator-toolbox #tabs-newtab-button,
-  #navigator-toolbox #vertical-tabs-newtab-button {
-    --toolbarbutton-hover-background: #ffffff17;
-    --toolbarbutton-active-background: var(--lg-floating-card);
-  }
-  /* Contrast is local to monochrome foregrounds, never to website favicons.
-   * Keep glyphs clean: no dark halo or simulated outline. */
-  #navigator-toolbox :is(label, .tab-label, .toolbarbutton-text, .tab-group-label),
-  #navigator-toolbox .toolbarbutton-icon,
-  #urlbar-input,
-  #urlbar :is(.urlbarView-title, .urlbarView-action, .urlbarView-url, .urlbarView-title-separator),
-  #zen-media-controls-toolbar :is(label, .zen-media-title, .zen-media-artist, button) {
-    color: var(--lg-local-ink, var(--lg-text)) !important;
-    fill: currentColor !important;
-    text-shadow: none !important;
-  }
-  #navigator-toolbox .toolbarbutton-icon,
-  #zen-media-controls-toolbar button {
-    filter: none !important;
-  }
-  #urlbar-input::placeholder { color: var(--lg-local-ink, var(--lg-text)) !important; opacity: .75 !important; }
-  #navigator-toolbox #titlebar { isolation: auto !important; }
-  /* One library material in desktop windows and fullscreen Spaces alike. */
-  :root zen-library,
-  :root:not([macOSNativeFullscreen]):not([sizemode="fullscreen"]):not([inDOMFullscreen]) zen-library {
-    background: var(--lg-surface) !important;
-    backdrop-filter: var(--lg-filter) !important;
-  }
-  :root zen-library :is(#zen-library-panel, #zen-library-content),
-  :root zen-library #zen-library-side,
-  :root:not([macOSNativeFullscreen]):not([sizemode="fullscreen"]):not([inDOMFullscreen]) zen-library #zen-library-side,
-  :root zen-library .zen-browser-generic-background,
-  :root zen-library .zen-browser-generic-background::before,
-  :root zen-library .zen-browser-generic-background::after {
-    background: transparent !important;
-    box-shadow: none !important;
-  }
-
-  /* Frosted transfer model inspired by sohumsuthar/liquid-glass (MIT).
-   * Explicit image source follows the capture-based approach used by web glass
-   * libraries; it bypasses chrome/remote-browser backdrop sampling limitations. */
-  :root:is([zen-compact-mode="true"], [inDOMFullscreen]):not([customizing]) #navigator-toolbox #titlebar[data-lg-material="ready"],
-  #navigator-toolbox #titlebar[data-lg-material="ready"],
-  #urlbar .urlbar-background[data-lg-material="ready"],
-  :root zen-library[data-lg-material="ready"],
-  :root:not([macOSNativeFullscreen]):not([sizemode="fullscreen"]):not([inDOMFullscreen]) zen-library[data-lg-material="ready"] {
-    background: transparent !important;
-    backdrop-filter: none !important;
-    isolation: isolate !important;
-  }
-  #titlebar[data-lg-material="ready"] { position: relative; }
-  [data-lg-material="ready"]::before,
-  [data-lg-material="ready"]::after {
-    content: "" !important; position: absolute; inset: 0; pointer-events: none;
-    border-radius: inherit; clip-path: inset(0 round 18px);
-  }
-  [data-lg-material="ready"]::before {
-    z-index: -2; background: var(--lg-live-backdrop) center / 100% 100% no-repeat !important;
-    filter: blur(10px) saturate(172%) brightness(.67);
-  }
-  [data-lg-material="ready"]::after {
-    z-index: -1;
-    background: linear-gradient(var(--lg-fill),var(--lg-fill)),linear-gradient(#ffffff22,#ffffff22) !important;
-  }
-
-  #urlbar:is([open], [breakout-extend="true"]) .urlbarView-row[selected] [data-lg-ink],
-  [data-lg-material] [data-lg-ink] {
-    color: var(--lg-local-ink) !important;
-    fill: currentColor !important;
-    text-shadow: none !important;
-  }
 
 }
