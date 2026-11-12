@@ -1,5 +1,5 @@
 // Mirror the page's effective CSS cursor; never invent a player inactivity timer.
-import {nativeCursor,pointerLocation,applicationIsActive,nativeCursorStatus} from 'resource://ultimate-glass-video/NativeCursor.sys.mjs';
+import {nativeCursor,pointerLocation,applicationIsActive,nativeCursorStatus,pointerOverKeyWindow} from 'resource://ultimate-glass-video/NativeCursor.sys.mjs';
 const controllers=new WeakMap(),PREF='mod.zenliquid.video-companion.enabled';
 export function fullscreenCursorFor(w){
  if(controllers.has(w))return controllers.get(w);
@@ -23,7 +23,13 @@ export function fullscreenCursorFor(w){
   if(value===hidden)return;hidden=value;
   eachFrame(a=>a.sendAsyncMessage('CursorIdle',{idle:value}));record(value?'hide-css-none':'show-css-visible');
  }
+ function popupOpen(){
+  return [...w.document.querySelectorAll('panel, menupopup')].some(p=>p.state==='open'||p.state==='showing');
+ }
  function insideContent(p){
+  // DOM hit-testing alone cannot see native popup widgets or other windows.
+  // Fail visible while menus are open, including their opening transition.
+  if(popupOpen()||!pointerOverKeyWindow())return false;
   const r=w.gBrowser.selectedBrowser.getBoundingClientRect(),x=w.mozInnerScreenX+r.x,y=w.mozInnerScreenY+r.y;
   // Chrome's transformed browser box can end between device pixels (e.g.
   // 1679.900), while the child viewport still ends at 1680. Quartz reports
@@ -87,6 +93,8 @@ export function fullscreenCursorFor(w){
  for(const n of ['mousemove','pointerdown','keydown'])w.addEventListener(n,input,true);
  for(const n of ['activate','deactivate'])w.addEventListener(n,focus,true);
  w.addEventListener('fullscreenchange',sync,true);
+ const popupChanged=e=>{if(e.target.ownerDocument===w.document)input();};
+ for(const n of ['popupshowing','popupshown','popuphiding','popuphidden'])w.addEventListener(n,popupChanged,true);
  const probe=()=>{media.clear();epoch++;setHidden(false);sync();eachFrame(a=>a.sendAsyncMessage('WatchPresentation'));};
  w.gBrowser.tabContainer.addEventListener('TabSelect',probe);
  Services.prefs.addObserver(PREF,probe);
@@ -95,6 +103,6 @@ export function fullscreenCursorFor(w){
   },activity:input,state(global){if(context)try{global.getActor('UltimateGlassVideo').sendAsyncMessage('CursorIdle',{idle:hidden});}catch{}},
   status:()=>({controller:'css-cursor-sync',independentIdleTimer:false,mediaFrames:media.size,idle:hidden,lastPolicy,foreground:foreground(),parentFullscreen:context,native:nativeCursorStatus()})};
  controllers.set(w,controller);
- w.addEventListener('unload',()=>{closed=true;epoch++;if(watch)w.clearInterval(watch);if(logTimer)w.clearTimeout(logTimer);setHidden(false);observer.disconnect();Services.prefs.removeObserver(PREF,probe);for(const n of ['mousemove','pointerdown','keydown'])w.removeEventListener(n,input,true);for(const n of ['activate','deactivate'])w.removeEventListener(n,focus,true);w.removeEventListener('fullscreenchange',sync,true);w.gBrowser.tabContainer.removeEventListener('TabSelect',probe);},{once:true});
+ w.addEventListener('unload',()=>{closed=true;epoch++;if(watch)w.clearInterval(watch);if(logTimer)w.clearTimeout(logTimer);setHidden(false);observer.disconnect();Services.prefs.removeObserver(PREF,probe);for(const n of ['mousemove','pointerdown','keydown'])w.removeEventListener(n,input,true);for(const n of ['activate','deactivate'])w.removeEventListener(n,focus,true);w.removeEventListener('fullscreenchange',sync,true);for(const n of ['popupshowing','popupshown','popuphiding','popuphidden'])w.removeEventListener(n,popupChanged,true);w.gBrowser.tabContainer.removeEventListener('TabSelect',probe);},{once:true});
  record('loaded');probe();return controller;
 }

@@ -17,8 +17,11 @@ function initialize(){
   const getClass=objc.declare('objc_getClass',c.default_abi,c.voidptr_t,c.char.ptr);
   const selector=objc.declare('sel_registerName',c.default_abi,c.voidptr_t,c.char.ptr);
   const object=objc.declare('objc_msgSend',c.default_abi,c.voidptr_t,c.voidptr_t,c.voidptr_t);
+  const integer=objc.declare('objc_msgSend',c.default_abi,c.long,c.voidptr_t,c.voidptr_t);
+  const mouse=objc.declare('objc_msgSend',c.default_abi,point,c.voidptr_t,c.voidptr_t);
+  const windowAt=objc.declare('objc_msgSend',c.default_abi,c.long,c.voidptr_t,c.voidptr_t,point,c.long);
   const boolean=objc.declare('objc_msgSend',c.default_abi,c.bool,c.voidptr_t,c.voidptr_t);
-  bridge={c,cg,cf,objc,create,locate,release,hide,show,button,object,boolean,app:getClass('NSApplication'),shared:selector('sharedApplication'),active:selector('isActive')};
+  bridge={c,cg,cf,objc,create,locate,release,hide,show,button,object,boolean,integer,mouse,windowAt,windowClass:getClass('NSWindow'),eventClass:getClass('NSEvent'),mouseLocation:selector('mouseLocation'),windowAtPoint:selector('windowNumberAtPoint:belowWindowWithWindowNumber:'),keyWindow:selector('keyWindow'),windowNumber:selector('windowNumber'),app:getClass('NSApplication'),shared:selector('sharedApplication'),active:selector('isActive')};
  }catch(e){error=String(e);console.error('[Ultimate Glass Quartz]',e);}
 }
 export function pointerLocation(){
@@ -30,6 +33,18 @@ export function applicationIsActive(){
  initialize();if(!bridge)return false;
  const app=bridge.object(bridge.app,bridge.shared);
  return !app.isNull()&&bridge.boolean(app,bridge.active);
+}
+// AppKit hit-testing includes non-key panels and windows from other apps.
+// Use AppKit's own mouse coordinates (bottom-left origin), not Quartz's.
+export function pointerOverKeyWindow(){
+ initialize();if(!bridge)return false;
+ try{
+  const app=bridge.object(bridge.app,bridge.shared),key=bridge.object(app,bridge.keyWindow);
+  if(key.isNull())return false;
+  const expected=Number(bridge.integer(key,bridge.windowNumber).toString());
+  const actual=Number(bridge.windowAt(bridge.windowClass,bridge.windowAtPoint,bridge.mouse(bridge.eventClass,bridge.mouseLocation),0).toString());
+  return expected>0&&actual===expected;
+ }catch(e){error='window hit-test: '+String(e);return false;}
 }
 export function primaryMouseDown(){initialize();return bridge?bridge.button(0,0):false;}
 function showOwned(){

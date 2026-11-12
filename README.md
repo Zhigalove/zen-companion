@@ -47,6 +47,7 @@ python3 Tests/backend_test.py
 node Tests/settings_test.mjs
 node Tests/material_test.mjs
 node Tests/animeon_test.mjs
+node Tests/cursor_test.mjs
 ```
 
 Готовое приложение: `build/Zen Companion.app`. Архитектура по умолчанию arm64; для сборки тестов на Intel можно задать `ZEN_COMPANION_ARCH=x86_64`.
